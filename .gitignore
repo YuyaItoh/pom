@@ -1,0 +1,32 @@
+# Ignore other unneeded files.
+
+# == Eclipse -----------------
+.project
+.classpath
+.settings
+
+# Idea -----------------------
+.idea
+*.iml
+*.iws
+*.ipr
+
+# OS -------------------------
+Thumbs.db
+.DS_Store
+
+# Gradle ---------------------
+.gradle
+!gradle-wrapper.jar
+
+# Maven ----------------------
+target
+
+# Other ----------------------
+*.log
+*.swp
+*.bak
+*.~
+*.input
+*.txt
+*.pomdp
