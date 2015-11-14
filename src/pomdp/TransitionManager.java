@@ -24,6 +24,7 @@ public class TransitionManager {
 	 * 遷移情報の追加
 	 */
 	public void add(Transition t) {
+		// 既に同じ遷移がある場合には，遷移確率を上げる
 		mTransitions.add(t);
 	}
 

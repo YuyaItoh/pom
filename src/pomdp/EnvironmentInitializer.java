@@ -91,8 +91,10 @@ public class EnvironmentInitializer {
 					actions.add((SeqAction) an);
 				}
 			}
-			// Evalアクションの作詞絵
-			actions.add(new SeqAction(ActionType.EVAL, evalWage));
+			// Eオプションがある or Eが0でない場合，Evalアクションを追加
+			if (evalWage != 0) {
+				actions.add(new SeqAction(ActionType.EVAL, evalWage));
+			}
 
 			// =======================
 			// 環境クラスの作成

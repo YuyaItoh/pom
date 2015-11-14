@@ -63,7 +63,7 @@ public class Environment {
 		// 状態遷移モデルの構築
 		// 根ノードではNEXTのみを展開する
 		for (SeqAction a : mActionSet.getNextActions()) {
-			transit(mSManager.mRootState, a);
+			transit(mSManager.mRootState, a, 1.0);
 		}
 
 		// 観測確率の計算
@@ -75,21 +75,25 @@ public class Environment {
 
 	/**
 	 * 状態sの展開
+	 * 
+	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void expand(SeqState s) {
+	private void expand(SeqState s, double prevQuality) {
 		count++;
 		if (count % 100000 == 0) {
 			System.out.println(count);
 		}
 		for (SeqAction a : mActionSet.mActions) {
-			transit(s, a);
+			transit(s, a, prevQuality);
 		}
 	}
 
 	/**
 	 * 遷移
+	 * 
+	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void transit(SeqState s, SeqAction a) {
+	private void transit(SeqState s, SeqAction a, double prevQuality) {
 		// ********************************************
 		// [最終タスク]
 		// ・NEXT, 予算切れ: 報酬を与えて初期状態に戻る
@@ -113,13 +117,13 @@ public class Environment {
 
 		switch (a.mType) {
 		case CURRENT:
-			actCurrent(s, a);
+			actCurrent(s, a, prevQuality);
 			break;
 		case NEXT:
-			actNext(s, a);
+			actNext(s, a, prevQuality);
 			break;
 		case EVAL:
-			actEval(s, a);
+			actEval(s, a, prevQuality);
 			break;
 		default:
 			break;
@@ -133,7 +137,8 @@ public class Environment {
 		for (Map.Entry<Worker, Double> e : mWorkerSet.mWorkers.entrySet()) {
 			// 状態作成
 			double quality = e.getKey().solve(mTaskSet.mTasks.get(s.mIndex), a.mWage, prevQuality);
-			// 品質が良い方を保持
+			// 品質が高い方を保持
+			// FIXME: ここで高い方の品質を選ぶことによって状態遷移確率の和が1にならなくなる
 			quality = (s.mQuality > quality) ? s.mQuality : quality;
 			SeqState nextState = new SeqState(s.mIndex, quality, s.mBudget - a.mWage);
 
@@ -142,14 +147,14 @@ public class Environment {
 			mTManager.add(new SeqTransition(s, a, nextState, e.getValue(), TransitionType.TRANSITION));
 
 			// 展開
-			expand(nextState);
+			expand(nextState, prevQuality);
 		}
 	}
 
 	/**
 	 * NEXTアクション
 	 */
-	private void actNext(SeqState s, SeqAction a) {
+	private void actNext(SeqState s, SeqAction a, double prevQuality) {
 		for (Map.Entry<Worker, Double> e : mWorkerSet.mWorkers.entrySet()) {
 			// 状態作成
 			double quality = e.getKey().solve(mTaskSet.mTasks.get(s.mIndex + 1), a.mWage, s.mQuality);
@@ -160,14 +165,14 @@ public class Environment {
 			mTManager.add(new SeqTransition(s, a, nextState, e.getValue(), TransitionType.TRANSITION));
 
 			// 展開
-			expand(nextState);
+			expand(nextState, s.mQuality);
 		}
 	}
 
 	/**
 	 * EVALアクション
 	 */
-	private void actEval(SeqState s, SeqAction a) {
+	private void actEval(SeqState s, SeqAction a, double prevQuality) {
 		SeqState nextState = new SeqState(s);
 		nextState.mBudget -= a.mWage;
 
@@ -176,7 +181,7 @@ public class Environment {
 		mTManager.add(new SeqTransition(s, a, nextState, 1.0, TransitionType.TRANSITION));
 
 		// 展開
-		expand(nextState);
+		expand(nextState, prevQuality);
 	}
 
 	/**
