@@ -1,19 +1,19 @@
 package pomdp;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TransitionManager {
 	// ==================
 	// Fields
 	// ==================
-	public Set<Transition> mTransitions;
+	public Map<Transition, Double> mTransitions;
 
 	// ==================
 	// Constructors
 	// ==================
 	public TransitionManager() {
-		mTransitions = new HashSet<Transition>();
+		mTransitions = new HashMap<Transition, Double>();
 	}
 
 	// ==================
@@ -23,9 +23,14 @@ public class TransitionManager {
 	/**
 	 * 遷移情報の追加
 	 */
-	public void add(Transition t) {
+	public void put(Transition pTransition, double pProb) {
 		// 既に同じ遷移がある場合には，遷移確率を上げる
-		mTransitions.add(t);
+		if (mTransitions.containsKey(pTransition)) {
+			double beforeProb = mTransitions.get(pTransition);
+			mTransitions.put(pTransition, beforeProb + pProb);
+		} else {
+			mTransitions.put(pTransition, pProb);
+		}
 	}
 
 	/**

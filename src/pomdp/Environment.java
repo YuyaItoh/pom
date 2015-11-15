@@ -2,8 +2,8 @@ package pomdp;
 
 import java.util.Map;
 
-import pomdp.SeqAction.ActionType;
-import pomdp.SeqTransition.TransitionType;
+import pomdp.Action.ActionType;
+import pomdp.Transition.TransitionType;
 
 /**
  * 環境クラス．神の視点<br>
@@ -46,8 +46,8 @@ public class Environment {
 	 * Manager変数の初期化
 	 */
 	private void initManager() {
-		State root = new SeqState(0, 1.0, mBudget);
-		mSManager = new StateManager((SeqState) root);
+		State root = new State(0, 1.0, mBudget);
+		mSManager = new StateManager((State) root);
 		mTManager = new TransitionManager();
 		mOManager = new ObservationManager();
 	}
@@ -62,7 +62,7 @@ public class Environment {
 	public void build() {
 		// 状態遷移モデルの構築
 		// 根ノードではNEXTのみを展開する
-		for (SeqAction a : mActionSet.getNextActions()) {
+		for (Action a : mActionSet.getNextActions()) {
 			transit(mSManager.mRootState, a, 1.0);
 		}
 
@@ -78,13 +78,15 @@ public class Environment {
 	 * 
 	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void expand(SeqState s, double prevQuality) {
-		count++;
-		if (count % 100000 == 0) {
-			System.out.println(count);
-		}
-		for (SeqAction a : mActionSet.mActions) {
-			transit(s, a, prevQuality);
+	private void expand(State s, double prevQuality) {
+		if (!mSManager.contains(s)) {
+			count++;
+			if (count % 100 == 0) {
+				System.out.println(count);
+			}
+			for (Action a : mActionSet.mActions) {
+				transit(s, a, prevQuality);
+			}
 		}
 	}
 
@@ -93,7 +95,7 @@ public class Environment {
 	 * 
 	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void transit(SeqState s, SeqAction a, double prevQuality) {
+	private void transit(State s, Action a, double prevQuality) {
 		// ********************************************
 		// [最終タスク]
 		// ・NEXT, 予算切れ: 報酬を与えて初期状態に戻る
@@ -105,12 +107,12 @@ public class Environment {
 		// ・NEXT, EVAL, CURRENT: 予算を減らして状態遷移
 		// ********************************************
 
-		if (isGoal((SeqState) s, (SeqAction) a)) {
+		if (isGoal((State) s, (Action) a)) {
 			goal(s, a);
 			return;
 		}
 
-		if (isBunkrupt((SeqState) s, (SeqAction) a)) {
+		if (isBunkrupt((State) s, (Action) a)) {
 			bunkrupt(s, a);
 			return;
 		}
@@ -133,61 +135,62 @@ public class Environment {
 	/**
 	 * CURRENTアクション
 	 */
-	private void actCurrent(SeqState s, SeqAction a, double prevQuality) {
-		for (Map.Entry<Worker, Double> e : mWorkerSet.mWorkers.entrySet()) {
+	private void actCurrent(State s, Action a, double prevQuality) {
+		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.mWorkers.entrySet()) {
 			// 状態作成
-			double quality = e.getKey().solve(mTaskSet.mTasks.get(s.mIndex), a.mWage, prevQuality);
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.mIndex), a.mWage, prevQuality);
 			// 品質が高い方を保持
-			// FIXME: ここで高い方の品質を選ぶことによって状態遷移確率の和が1にならなくなる
 			quality = (s.mQuality > quality) ? s.mQuality : quality;
-			SeqState nextState = new SeqState(s.mIndex, quality, s.mBudget - a.mWage);
-
-			// 状態，状態遷移の追加
-			mSManager.add(nextState);
-			mTManager.add(new SeqTransition(s, a, nextState, e.getValue(), TransitionType.TRANSITION));
+			State nextState = new State(s.mIndex, quality, s.mBudget - a.mWage);
 
 			// 展開
 			expand(nextState, prevQuality);
+
+			// 状態，状態遷移の追加
+			mSManager.add(nextState);
+			mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), workerFreq.getValue());
+
 		}
 	}
 
 	/**
 	 * NEXTアクション
 	 */
-	private void actNext(SeqState s, SeqAction a, double prevQuality) {
-		for (Map.Entry<Worker, Double> e : mWorkerSet.mWorkers.entrySet()) {
+	private void actNext(State s, Action a, double prevQuality) {
+		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.mWorkers.entrySet()) {
 			// 状態作成
-			double quality = e.getKey().solve(mTaskSet.mTasks.get(s.mIndex + 1), a.mWage, s.mQuality);
-			SeqState nextState = new SeqState(s.mIndex + 1, quality, s.mBudget - a.mWage);
-
-			// 状態，状態遷移の追加
-			mSManager.add(nextState);
-			mTManager.add(new SeqTransition(s, a, nextState, e.getValue(), TransitionType.TRANSITION));
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.mIndex + 1), a.mWage, s.mQuality);
+			State nextState = new State(s.mIndex + 1, quality, s.mBudget - a.mWage);
 
 			// 展開
 			expand(nextState, s.mQuality);
+
+			// 状態，状態遷移の追加
+			mSManager.add(nextState);
+			mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), workerFreq.getValue());
+
 		}
 	}
 
 	/**
 	 * EVALアクション
 	 */
-	private void actEval(SeqState s, SeqAction a, double prevQuality) {
-		SeqState nextState = new SeqState(s);
+	private void actEval(State s, Action a, double prevQuality) {
+		State nextState = new State(s);
 		nextState.mBudget -= a.mWage;
-
-		// 状態，状態遷移の追加
-		mSManager.add(nextState);
-		mTManager.add(new SeqTransition(s, a, nextState, 1.0, TransitionType.TRANSITION));
 
 		// 展開
 		expand(nextState, prevQuality);
+
+		// 状態，状態遷移の追加
+		mSManager.add(nextState);
+		mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), 1.0);
 	}
 
 	/**
 	 * GOAL判定
 	 */
-	private boolean isGoal(SeqState s, SeqAction a) {
+	private boolean isGoal(State s, Action a) {
 		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUE
 		if (s.mIndex == mTaskSet.mDivNum) {
 			if (a.mType == ActionType.NEXT || s.mBudget - a.mWage < 0) {
@@ -200,7 +203,7 @@ public class Environment {
 	/**
 	 * BUNKRUPT判定
 	 */
-	private boolean isBunkrupt(SeqState s, SeqAction a) {
+	private boolean isBunkrupt(State s, Action a) {
 		return (s.mBudget - a.mWage) < 0;
 	}
 
@@ -208,14 +211,14 @@ public class Environment {
 	 * GOAL情報を付加して初期状態に戻る
 	 */
 	private void goal(State s, Action a) {
-		mTManager.add(new SeqTransition(s, a, mSManager.mRootState, 1.0, TransitionType.GOAL));
+		mTManager.put(new Transition(s, a, mSManager.mRootState, TransitionType.GOAL), 1.0);
 	}
 
 	/**
 	 * BUNKRUPT情報を付加して初期状態に戻る
 	 */
 	private void bunkrupt(State s, Action a) {
-		mTManager.add(new SeqTransition(s, a, mSManager.mRootState, 1.0, TransitionType.BUNKRUPT));
+		mTManager.put(new Transition(s, a, mSManager.mRootState, TransitionType.BUNKRUPT), 1.0);
 	}
 
 	@Override
@@ -243,7 +246,7 @@ public class Environment {
 		ans += String.format("# + Action : %d\n", mActionSet.mActions.size());
 
 		int actionIndex = 0;
-		for (SeqAction a : mActionSet.mActions) {
+		for (Action a : mActionSet.mActions) {
 			ans += String.format("# \t* %d (type, wage) = (%s, %d)\n", actionIndex, a.mType.toString(), a.mWage);
 			actionIndex++;
 		}

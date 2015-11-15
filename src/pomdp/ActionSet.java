@@ -3,7 +3,7 @@ package pomdp;
 import java.util.HashSet;
 import java.util.Set;
 
-import pomdp.SeqAction.ActionType;
+import pomdp.Action.ActionType;
 
 /**
  * 行動集合クラス
@@ -12,28 +12,28 @@ public class ActionSet {
 	// =================
 	// Fields
 	// =================
-	public Set<SeqAction> mActions;
+	public Set<Action> mActions;
 
 	// =================
 	// Constructors
 	// =================
 	public ActionSet() {
-		mActions = new HashSet<SeqAction>();
+		mActions = new HashSet<Action>();
 	}
 
 	// =================
 	// Methods
 	// =================
-	public void add(SeqAction pAction) {
+	public void add(Action pAction) {
 		mActions.add(pAction);
 	}
 
 	/**
 	 * NEXTアクション集合を取得
 	 */
-	public Set<SeqAction> getNextActions() {
-		Set<SeqAction> actions = new HashSet<SeqAction>();
-		for (SeqAction a : mActions) {
+	public Set<Action> getNextActions() {
+		Set<Action> actions = new HashSet<Action>();
+		for (Action a : mActions) {
 			if (a.mType == ActionType.NEXT) {
 				actions.add(a);
 			}
@@ -44,9 +44,9 @@ public class ActionSet {
 	/**
 	 * CURRENTアクション集合を取得
 	 */
-	public Set<SeqAction> getCurrentActions() {
-		Set<SeqAction> actions = new HashSet<SeqAction>();
-		for (SeqAction a : mActions) {
+	public Set<Action> getCurrentActions() {
+		Set<Action> actions = new HashSet<Action>();
+		for (Action a : mActions) {
 			if (a.mType == ActionType.CURRENT) {
 				actions.add(a);
 			}

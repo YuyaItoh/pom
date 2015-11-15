@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import pomdp.SeqAction.ActionType;
+import pomdp.Action.ActionType;
 
 public class EnvironmentInitializer {
 	/**
@@ -64,7 +64,7 @@ public class EnvironmentInitializer {
 					for (int i = 0; i < data.length; i++) {
 						double ability = Double.parseDouble(data[i].split(",")[0]);
 						double freq = Double.parseDouble(data[i].split(",")[1]);
-						workers.mWorkers.put(new SeqWorker(ability), freq);
+						workers.mWorkers.put(new Worker(ability), freq);
 					}
 					break;
 				case 'E': // Eval
@@ -85,15 +85,15 @@ public class EnvironmentInitializer {
 			for (Subtask st : tasks.mTasks.values()) {
 				// サブタスクのベース賃金±1でアクションを作成する
 				for (int i = -1 * searchRange; i <= searchRange; i++) {
-					Action ac = new SeqAction(ActionType.CURRENT, st.mBaseWage + i);
-					Action an = new SeqAction(ActionType.NEXT, st.mBaseWage + i);
-					actions.add((SeqAction) ac);
-					actions.add((SeqAction) an);
+					Action ac = new Action(ActionType.CURRENT, st.mBaseWage + i);
+					Action an = new Action(ActionType.NEXT, st.mBaseWage + i);
+					actions.add((Action) ac);
+					actions.add((Action) an);
 				}
 			}
 			// Eオプションがある or Eが0でない場合，Evalアクションを追加
 			if (evalWage != 0) {
-				actions.add(new SeqAction(ActionType.EVAL, evalWage));
+				actions.add(new Action(ActionType.EVAL, evalWage));
 			}
 
 			// =======================

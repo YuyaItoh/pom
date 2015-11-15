@@ -1,37 +1,47 @@
 package pomdp;
 
-public abstract class Transition {
+public class Transition {
+	// =====================
+	// Enumerates
+	// =====================
+	public enum TransitionType {
+		// GOAL: ワークフロー終了による遷移
+		// BUNKRUPT: 予算切れによる遷移
+		// TRANSITION: 途中遷移
+		GOAL, BUNKRUPT, TRANSITION
+	}
+
 	// =====================
 	// Fields
 	// =====================
 	State mPrevState;
 	Action mAction;
 	State mNextState;
-	double mProb;
+	TransitionType mType;
 	double mReward;
 
 	// =====================
 	// Constructors
 	// =====================
-	public Transition(State pPrevState, Action pAction, State pNextState, double pProb) {
+	public Transition(State pPrevState, Action pAction, State pNextState, TransitionType pType) {
 		mPrevState = pPrevState;
 		mAction = pAction;
 		mNextState = pNextState;
-		mProb = pProb;
+		mType = pType;
 		calcReward();
 	}
 
 	// =====================
-	// Abstract Methods
-	// =====================
-	protected abstract void calcReward();
-
-	// =====================
 	// Methods
 	// =====================
+	public double calcReward() {
+		// TODO: 報酬関数を作る事
+		return 1.0;
+	}
+
 	@Override
 	public String toString() {
-		return "T(" + mPrevState.toString() + ", " + mAction.toString() + ", " + mNextState.toString() + ") = " + mProb;
+		return "T(" + mPrevState.toString() + ", " + mAction.toString() + ", " + mNextState.toString() + ")";
 	}
 
 	@Override
@@ -41,6 +51,10 @@ public abstract class Transition {
 		result = prime * result + ((mAction == null) ? 0 : mAction.hashCode());
 		result = prime * result + ((mNextState == null) ? 0 : mNextState.hashCode());
 		result = prime * result + ((mPrevState == null) ? 0 : mPrevState.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(mReward);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((mType == null) ? 0 : mType.hashCode());
 		return result;
 	}
 
@@ -67,6 +81,10 @@ public abstract class Transition {
 			if (other.mPrevState != null)
 				return false;
 		} else if (!mPrevState.equals(other.mPrevState))
+			return false;
+		if (Double.doubleToLongBits(mReward) != Double.doubleToLongBits(other.mReward))
+			return false;
+		if (mType != other.mType)
 			return false;
 		return true;
 	}

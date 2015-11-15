@@ -12,13 +12,13 @@ public class StateManager {
 	// =================
 	// Fields
 	// =================
-	public SeqState mRootState;
+	public State mRootState;
 	public Map<Integer, Set<State>> mStates; // index毎に分類
 
 	// =================
 	// Constructors
 	// =================
-	public StateManager(SeqState pRootState) {
+	public StateManager(State pRootState) {
 		mRootState = pRootState;
 		mStates = new HashMap<Integer, Set<State>>();
 		add(mRootState);
@@ -31,7 +31,7 @@ public class StateManager {
 	/**
 	 * 状態を追加する
 	 */
-	public void add(SeqState pState) {
+	public void add(State pState) {
 		int index = pState.mIndex;
 
 		// インデックスに対して初めての追加の場合は新規作成
@@ -45,8 +45,12 @@ public class StateManager {
 	/**
 	 * 存在判定
 	 */
-	public boolean contains(SeqState pState) {
-		return mStates.get(pState.mIndex).contains(pState);
+	public boolean contains(State pState) {
+		if (mStates.containsKey(pState.mIndex)) {
+			return mStates.get(pState.mIndex).contains(pState);
+		} else {
+			return false;
+		}
 	}
 
 	/**
