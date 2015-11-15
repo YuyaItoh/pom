@@ -14,11 +14,11 @@ public class Transition {
 	// =====================
 	// Fields
 	// =====================
-	State mPrevState;
-	Action mAction;
-	State mNextState;
-	TransitionType mType;
-	double mReward;
+	private State mPrevState;
+	private Action mAction;
+	private State mNextState;
+	private TransitionType mType;
+	private double mReward;
 
 	// =====================
 	// Constructors
@@ -29,6 +29,29 @@ public class Transition {
 		mNextState = pNextState;
 		mType = pType;
 		calcReward();
+	}
+
+	// =====================
+	// Getters & Setters
+	// =====================
+	public State getPrevState() {
+		return mPrevState;
+	}
+
+	public Action getAction() {
+		return mAction;
+	}
+
+	public State getNextState() {
+		return mNextState;
+	}
+
+	public TransitionType getType() {
+		return mType;
+	}
+
+	public double getReward() {
+		return mReward;
 	}
 
 	// =====================

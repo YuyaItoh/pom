@@ -12,13 +12,20 @@ public class ActionSet {
 	// =================
 	// Fields
 	// =================
-	public Set<Action> mActions;
+	private Set<Action> mActions;
 
 	// =================
 	// Constructors
 	// =================
 	public ActionSet() {
 		mActions = new HashSet<Action>();
+	}
+
+	// =================
+	// Getters & Setters
+	// =================
+	public Set<Action> getActions() {
+		return mActions;
 	}
 
 	// =================
@@ -34,7 +41,7 @@ public class ActionSet {
 	public Set<Action> getNextActions() {
 		Set<Action> actions = new HashSet<Action>();
 		for (Action a : mActions) {
-			if (a.mType == ActionType.NEXT) {
+			if (a.getType() == ActionType.NEXT) {
 				actions.add(a);
 			}
 		}
@@ -47,7 +54,7 @@ public class ActionSet {
 	public Set<Action> getCurrentActions() {
 		Set<Action> actions = new HashSet<Action>();
 		for (Action a : mActions) {
-			if (a.mType == ActionType.CURRENT) {
+			if (a.getType() == ActionType.CURR) {
 				actions.add(a);
 			}
 		}

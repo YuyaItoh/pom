@@ -1,7 +1,6 @@
 package pomdp;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,21 +11,39 @@ import java.util.Set;
  *
  */
 public class WorkerSet {
-	// ================
+	// ==================
 	// Fields
-	// ================
-	Map<Worker, Double> mWorkers;
+	// ==================
+	private Map<Worker, Double> mWorkers;
 
-	// ================
+	// ==================
 	// Constructors
-	// ================
+	// ==================
 	public WorkerSet() {
 		mWorkers = new HashMap<Worker, Double>();
 	}
 
-	// ================
+	// ==================
+	// Getters & Setters
+	// ==================
+
+	/**
+	 * (Worker, Freq)の組を全て取得
+	 */
+	public Map<Worker, Double> getWorkersWithFreq() {
+		return mWorkers;
+	}
+
+	/**
+	 * 全てのワーカを取得
+	 */
+	public Set<Worker> getWorkers() {
+		return mWorkers.keySet();
+	}
+
+	// ==================
 	// Methods
-	// ================
+	// ==================
 
 	/**
 	 * ワーカを追加
@@ -39,14 +56,10 @@ public class WorkerSet {
 	}
 
 	/**
-	 * 全てのワーカを取得
+	 * ワーカ数を取得
 	 */
-	public Set<Worker> getWorkers() {
-		Set<Worker> workers = new HashSet<Worker>();
-		for (Worker w : mWorkers.keySet()) {
-			workers.add(w);
-		}
-		return workers;
+	public int getSize() {
+		return mWorkers.size();
 	}
 
 	/**

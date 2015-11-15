@@ -10,8 +10,19 @@ public class Subtask {
 	// ==================
 	// Fields
 	// ==================
-	public double mDifficulty; // 難易度
-	public int mBaseWage; // ベース賃金
+	private double mDifficulty; // 難易度
+	private int mBaseWage; // ベース賃金
+
+	// ==================
+	// Getters & Setters
+	// ==================
+	public double getDifficulty() {
+		return mDifficulty;
+	}
+
+	public int getBaseWage() {
+		return mBaseWage;
+	}
 
 	// ==================
 	// Constructors

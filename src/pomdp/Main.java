@@ -20,9 +20,7 @@ public class Main {
 		String file = "test.input";
 		Environment e = EnvironmentInitializer.init(file);
 		e.build();
-		System.out.println(e.toString());
-		System.out.println(e.mSManager.toString());
-		System.out.println(e.mTManager.toString());
+		e.toPomdpSolver("test.pomdp", 0);
 
 		// ==================
 		// 計測終了

@@ -14,14 +14,14 @@ public class Action {
 		// eval: 現タスクの品質確認
 		// next: 次タスクの依頼
 		// current: 現タスクの再依頼
-		EVAL, NEXT, CURRENT
+		EVAL, NEXT, CURR
 	}
 
 	// ===================
 	// Fields
 	// ===================
-	public ActionType mType; // アクションタイプ
-	public int mWage; // 支払い賃金
+	private ActionType mType; // アクションタイプ
+	private int mWage; // 支払い賃金
 
 	// ===================
 	// Constructors
@@ -32,12 +32,27 @@ public class Action {
 	}
 
 	// ===================
+	// Getters & Setters
+	// ===================
+	public ActionType getType() {
+		return mType;
+	}
+
+	public int getWage() {
+		return mWage;
+	}
+
+	// ===================
 	// Methods
 	// ===================
 
 	@Override
 	public String toString() {
 		return "A(" + mType + ", w:" + mWage + ")";
+	}
+
+	public String toName() {
+		return Remover.removeDot(String.format("%s_%d", mType.toString(), mWage));
 	}
 
 	@Override

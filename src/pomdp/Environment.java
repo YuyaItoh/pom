@@ -15,15 +15,16 @@ public class Environment {
 	// =====================
 	// Fields
 	// =====================
-	public WorkerSet mWorkerSet; // ワーカ集合
-	public TaskSet mTaskSet; // タスク集合
-	public ActionSet mActionSet; // 行動集合
-	public int mBudget; // 予算
+	private WorkerSet mWorkerSet; // ワーカ集合
+	private TaskSet mTaskSet; // タスク集合
+	private ActionSet mActionSet; // 行動集合
+
+	private int mBudget; // 予算
 
 	// Manager
-	public StateManager mSManager;
-	public TransitionManager mTManager;
-	public ObservationManager mOManager;
+	private StateManager mSManager;
+	private TransitionManager mTManager;
+	private ObservationManager mOManager;
 
 	private int count = 0; // プログレスバー
 
@@ -53,9 +54,39 @@ public class Environment {
 	}
 
 	// =====================
+	// Getters & Setters
+	// =====================
+	public WorkerSet getWorkerSet() {
+		return mWorkerSet;
+	}
+
+	public TaskSet getTaskSet() {
+		return mTaskSet;
+	}
+
+	public ActionSet getActionSet() {
+		return mActionSet;
+	}
+
+	public int getBudget() {
+		return mBudget;
+	}
+
+	public StateManager getSManager() {
+		return mSManager;
+	}
+
+	public TransitionManager getTManager() {
+		return mTManager;
+	}
+
+	public ObservationManager getOManager() {
+		return mOManager;
+	}
+
+	// =====================
 	// Public Methods
 	// =====================
-
 	/**
 	 * POMDP環境を構築する
 	 */
@@ -63,10 +94,17 @@ public class Environment {
 		// 状態遷移モデルの構築
 		// 根ノードではNEXTのみを展開する
 		for (Action a : mActionSet.getNextActions()) {
-			transit(mSManager.mRootState, a, 1.0);
+			transit(mSManager.getRootState(), a, 1.0);
 		}
 
-		// 観測確率の計算
+		// TODO: 観測確率の計算
+	}
+
+	/**
+	 * pomdp形式で出力する．mode:0でpomdp, 1でmdp
+	 */
+	public void toPomdpSolver(String pPath, int mode) {
+		PomdpSolveWriter.getInstance(this).write(pPath, mode);
 	}
 
 	// =====================
@@ -84,7 +122,7 @@ public class Environment {
 			if (count % 100 == 0) {
 				System.out.println(count);
 			}
-			for (Action a : mActionSet.mActions) {
+			for (Action a : mActionSet.getActions()) {
 				transit(s, a, prevQuality);
 			}
 		}
@@ -117,8 +155,8 @@ public class Environment {
 			return;
 		}
 
-		switch (a.mType) {
-		case CURRENT:
+		switch (a.getType()) {
+		case CURR:
 			actCurrent(s, a, prevQuality);
 			break;
 		case NEXT:
@@ -136,12 +174,12 @@ public class Environment {
 	 * CURRENTアクション
 	 */
 	private void actCurrent(State s, Action a, double prevQuality) {
-		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.mWorkers.entrySet()) {
+		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.mIndex), a.mWage, prevQuality);
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.getIndex()), a.getWage(), prevQuality);
 			// 品質が高い方を保持
-			quality = (s.mQuality > quality) ? s.mQuality : quality;
-			State nextState = new State(s.mIndex, quality, s.mBudget - a.mWage);
+			quality = (s.getQuality() > quality) ? s.getQuality() : quality;
+			State nextState = new State(s.getIndex(), quality, s.getBudget() - a.getWage());
 
 			// 展開
 			expand(nextState, prevQuality);
@@ -157,13 +195,14 @@ public class Environment {
 	 * NEXTアクション
 	 */
 	private void actNext(State s, Action a, double prevQuality) {
-		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.mWorkers.entrySet()) {
+		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.mIndex + 1), a.mWage, s.mQuality);
-			State nextState = new State(s.mIndex + 1, quality, s.mBudget - a.mWage);
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.getIndex() + 1), a.getWage(),
+					s.getQuality());
+			State nextState = new State(s.getIndex() + 1, quality, s.getBudget() - a.getWage());
 
 			// 展開
-			expand(nextState, s.mQuality);
+			expand(nextState, s.getQuality());
 
 			// 状態，状態遷移の追加
 			mSManager.add(nextState);
@@ -177,7 +216,7 @@ public class Environment {
 	 */
 	private void actEval(State s, Action a, double prevQuality) {
 		State nextState = new State(s);
-		nextState.mBudget -= a.mWage;
+		nextState.decreaseBudget(a.getWage());
 
 		// 展開
 		expand(nextState, prevQuality);
@@ -192,8 +231,8 @@ public class Environment {
 	 */
 	private boolean isGoal(State s, Action a) {
 		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUE
-		if (s.mIndex == mTaskSet.mDivNum) {
-			if (a.mType == ActionType.NEXT || s.mBudget - a.mWage < 0) {
+		if (s.getIndex() == mTaskSet.getDivNum()) {
+			if (a.getType() == ActionType.NEXT || s.getBudget() - a.getWage() < 0) {
 				return true;
 			}
 		}
@@ -204,21 +243,21 @@ public class Environment {
 	 * BUNKRUPT判定
 	 */
 	private boolean isBunkrupt(State s, Action a) {
-		return (s.mBudget - a.mWage) < 0;
+		return (s.getBudget() - a.getWage()) < 0;
 	}
 
 	/**
 	 * GOAL情報を付加して初期状態に戻る
 	 */
 	private void goal(State s, Action a) {
-		mTManager.put(new Transition(s, a, mSManager.mRootState, TransitionType.GOAL), 1.0);
+		mTManager.put(new Transition(s, a, mSManager.getRootState(), TransitionType.GOAL), 1.0);
 	}
 
 	/**
 	 * BUNKRUPT情報を付加して初期状態に戻る
 	 */
 	private void bunkrupt(State s, Action a) {
-		mTManager.put(new Transition(s, a, mSManager.mRootState, TransitionType.BUNKRUPT), 1.0);
+		mTManager.put(new Transition(s, a, mSManager.getRootState(), TransitionType.BUNKRUPT), 1.0);
 	}
 
 	@Override
@@ -227,27 +266,28 @@ public class Environment {
 		ans += String.format("# ******************************************\n# \n");
 
 		// ワーカのスキルレベルと出現頻度
-		ans += String.format("# + Worker : %d\n", mWorkerSet.mWorkers.size());
-		for (Map.Entry<Worker, Double> e : mWorkerSet.mWorkers.entrySet()) {
-			ans += String.format("# \t* (ability, freq) = (%.2f, %.2f)\n", e.getKey().mAbility, e.getValue());
+		ans += String.format("# + Worker : %d\n", mWorkerSet.getSize());
+		for (Map.Entry<Worker, Double> e : mWorkerSet.getWorkersWithFreq().entrySet()) {
+			ans += String.format("# \t* (ability, freq) = (%.2f, %.2f)\n", e.getKey().getAbility(), e.getValue());
 		}
 
 		// サブタスク数，難易度，ベース賃金
-		ans += String.format("# + Task : %d\n", mTaskSet.mDivNum);
+		ans += String.format("# + Task : %d\n", mTaskSet.getDivNum());
 		for (Map.Entry<Integer, Subtask> e : mTaskSet.mTasks.entrySet()) {
 			ans += String.format("# \t* (index, difficulty, base_wage) = (%d, %.2f, %d)\n", e.getKey(),
-					e.getValue().mDifficulty, e.getValue().mBaseWage);
+					e.getValue().getDifficulty(), e.getValue().getBaseWage());
 		}
 
 		// 予算
 		ans += String.format("# + Budget : %d\n", mBudget);
 
 		// アクションとコスト
-		ans += String.format("# + Action : %d\n", mActionSet.mActions.size());
+		ans += String.format("# + Action : %d\n", mActionSet.getActions().size());
 
 		int actionIndex = 0;
-		for (Action a : mActionSet.mActions) {
-			ans += String.format("# \t* %d (type, wage) = (%s, %d)\n", actionIndex, a.mType.toString(), a.mWage);
+		for (Action a : mActionSet.getActions()) {
+			ans += String.format("# \t* %d (type, wage) = (%s, %d)\n", actionIndex, a.getType().toString(),
+					a.getWage());
 			actionIndex++;
 		}
 

@@ -1,5 +1,6 @@
 package pomdp;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public class TaskSet {
 	// ===================
 	// Fields
 	// ===================
-	public int mDivNum; // 分割数
+	private int mDivNum; // 分割数
 	public Map<Integer, Subtask> mTasks;
 
 	// ===================
@@ -30,14 +31,40 @@ public class TaskSet {
 	}
 
 	// ===================
+	// Getters & Setters
+	// ===================
+	public int getDivNum() {
+		return mDivNum;
+	}
+
+	public void setDivNum(int pNum) {
+		mDivNum = pNum;
+	}
+
+	// ===================
 	// Methods
 	// ===================
+
+	/**
+	 * タスクを追加
+	 */
+	public void putSubtask(int pIndex, Subtask pSubtask) {
+		mTasks.put(pIndex, pSubtask);
+	}
 
 	/**
 	 * サブタスクを取得
 	 */
 	public Subtask getSubtask(int pIndex) {
 		return mTasks.get(pIndex);
+	}
+
+	/**
+	 * 全てのサブタスクを取得
+	 */
+
+	public Collection<Subtask> getSubtasks() {
+		return mTasks.values();
 	}
 
 	@Override

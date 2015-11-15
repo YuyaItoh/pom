@@ -2,12 +2,13 @@ package pomdp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class TransitionManager {
 	// ==================
 	// Fields
 	// ==================
-	public Map<Transition, Double> mTransitions;
+	private Map<Transition, Double> mTransitions;
 
 	// ==================
 	// Constructors
@@ -17,9 +18,26 @@ public class TransitionManager {
 	}
 
 	// ==================
-	// Methods
+	// Getters & Setters
 	// ==================
 
+	/**
+	 * (状態遷移, 確率)のmapを取得
+	 */
+	public Map<Transition, Double> getTransitionsWithProb() {
+		return mTransitions;
+	}
+
+	/**
+	 * 全状態遷移の取得
+	 */
+	public Set<Transition> getTransitions() {
+		return mTransitions.keySet();
+	}
+
+	// ==================
+	// Methods
+	// ==================
 	/**
 	 * 遷移情報の追加
 	 */

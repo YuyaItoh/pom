@@ -52,19 +52,19 @@ public class EnvironmentInitializer {
 					budget = Integer.parseInt(data[0]);
 					break;
 				case 'T': // タスク<diff, wage>
-					tasks.mDivNum = data.length;
+					tasks.setDivNum(data.length);
 					for (int i = 0; i < data.length; i++) {
 						double difficulty = Double.parseDouble(data[i].split(",")[0]);
 						int baseWage = Integer.parseInt(data[i].split(",")[1]);
 						Subtask subtask = new Subtask(difficulty, baseWage);
-						tasks.mTasks.put(i + 1, subtask);
+						tasks.putSubtask(i + 1, subtask);
 					}
 					break;
 				case 'W': // ワーカ(ability, freq)
 					for (int i = 0; i < data.length; i++) {
 						double ability = Double.parseDouble(data[i].split(",")[0]);
 						double freq = Double.parseDouble(data[i].split(",")[1]);
-						workers.mWorkers.put(new Worker(ability), freq);
+						workers.add(new Worker(ability), freq);
 					}
 					break;
 				case 'E': // Eval
@@ -82,11 +82,11 @@ public class EnvironmentInitializer {
 			// =======================
 			// 行動集合の作成
 			// =======================
-			for (Subtask st : tasks.mTasks.values()) {
+			for (Subtask st : tasks.getSubtasks()) {
 				// サブタスクのベース賃金±1でアクションを作成する
 				for (int i = -1 * searchRange; i <= searchRange; i++) {
-					Action ac = new Action(ActionType.CURRENT, st.mBaseWage + i);
-					Action an = new Action(ActionType.NEXT, st.mBaseWage + i);
+					Action ac = new Action(ActionType.CURR, st.getBaseWage() + i);
+					Action an = new Action(ActionType.NEXT, st.getBaseWage() + i);
 					actions.add((Action) ac);
 					actions.add((Action) an);
 				}

@@ -12,8 +12,8 @@ public class StateManager {
 	// =================
 	// Fields
 	// =================
-	public State mRootState;
-	public Map<Integer, Set<State>> mStates; // index毎に分類
+	private State mRootState;
+	private Map<Integer, Set<State>> mStates; // index毎に分類
 
 	// =================
 	// Constructors
@@ -25,6 +25,13 @@ public class StateManager {
 	}
 
 	// =================
+	// Getters & Setters
+	// =================
+	public State getRootState() {
+		return mRootState;
+	}
+
+	// =================
 	// Methods
 	// =================
 
@@ -32,7 +39,7 @@ public class StateManager {
 	 * 状態を追加する
 	 */
 	public void add(State pState) {
-		int index = pState.mIndex;
+		int index = pState.getIndex();
 
 		// インデックスに対して初めての追加の場合は新規作成
 		if (mStates.get(index) == null) {
@@ -46,8 +53,8 @@ public class StateManager {
 	 * 存在判定
 	 */
 	public boolean contains(State pState) {
-		if (mStates.containsKey(pState.mIndex)) {
-			return mStates.get(pState.mIndex).contains(pState);
+		if (mStates.containsKey(pState.getIndex())) {
+			return mStates.get(pState.getIndex()).contains(pState);
 		} else {
 			return false;
 		}
@@ -92,6 +99,13 @@ public class StateManager {
 	@Override
 	public String toString() {
 		return "States(" + getSize() + ") = " + mStates;
+	}
+
+	/**
+	 * 根ノードか判定する
+	 */
+	public boolean isRootState(State s) {
+		return s.equals(mRootState);
 	}
 
 }

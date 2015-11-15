@@ -12,9 +12,9 @@ public class State {
 	// ======================
 	// Fields
 	// ======================
-	public int mIndex;
-	public double mQuality;
-	public int mBudget;
+	private int mIndex;
+	private double mQuality;
+	private int mBudget;
 
 	// ======================
 	// Constructors
@@ -27,7 +27,6 @@ public class State {
 		// 2桁で品質を保持する
 		BigDecimal bd = new BigDecimal(mQuality);
 		mQuality = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
 	}
 
 	// コピーの作成
@@ -35,6 +34,32 @@ public class State {
 		mIndex = pState.mIndex;
 		mQuality = pState.mQuality;
 		mBudget = pState.mBudget;
+	}
+
+	// ======================
+	// Getters & Setters
+	// ======================
+	public int getIndex() {
+		return mIndex;
+	}
+
+	public double getQuality() {
+		return mQuality;
+	}
+
+	public int getBudget() {
+		return mBudget;
+	}
+
+	// ======================
+	// Methods
+	// ======================
+
+	/**
+	 * 予算を減らす
+	 */
+	public void decreaseBudget(int pVal) {
+		mBudget -= pVal;
 	}
 
 	@Override
@@ -70,5 +95,9 @@ public class State {
 	@Override
 	public String toString() {
 		return "S(" + mIndex + ", " + mQuality + ", " + mBudget + ")";
+	}
+
+	public String toName() {
+		return Remover.removeDot(String.format("s%d_%.2f_%d", mIndex, mQuality, mBudget));
 	}
 }
