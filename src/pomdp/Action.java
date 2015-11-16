@@ -52,7 +52,7 @@ public class Action {
 	}
 
 	public String toName() {
-		return Remover.removeDot(String.format("%s_%d", mType.toString(), mWage));
+		return Utility.removeDot(String.format("%s_%d", mType.toString(), mWage));
 	}
 
 	@Override

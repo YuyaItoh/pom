@@ -31,6 +31,10 @@ public class StateManager {
 		return mRootState;
 	}
 
+	public Map<Integer, Set<State>> getStatesWithIndex() {
+		return mStates;
+	}
+
 	// =================
 	// Methods
 	// =================
@@ -76,6 +80,19 @@ public class StateManager {
 			all.addAll(states);
 		}
 		return all;
+	}
+
+	/**
+	 * インデックスと予算を指定して状態を取得
+	 */
+	public Set<State> getStates(int pIndex, int pBudget) {
+		Set<State> states = new HashSet<State>();
+		for (State s : getStates(pIndex)) {
+			if (s.getBudget() == pBudget) {
+				states.add(s);
+			}
+		}
+		return states;
 	}
 
 	/**

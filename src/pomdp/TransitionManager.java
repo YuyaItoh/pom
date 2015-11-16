@@ -43,12 +43,12 @@ public class TransitionManager {
 	 */
 	public void put(Transition pTransition, double pProb) {
 		// 既に同じ遷移がある場合には，遷移確率を上げる
-		if (mTransitions.containsKey(pTransition)) {
-			double beforeProb = mTransitions.get(pTransition);
-			mTransitions.put(pTransition, beforeProb + pProb);
-		} else {
-			mTransitions.put(pTransition, pProb);
-		}
+		double prob = mTransitions.containsKey(pTransition) ? mTransitions.get(pTransition) + pProb : pProb;
+
+		// 確率は小数点3位まで
+		prob = Utility.round(prob, 3);
+
+		mTransitions.put(pTransition, prob);
 	}
 
 	/**

@@ -31,6 +31,14 @@ public class Transition {
 		calcReward();
 	}
 
+	/**
+	 * 品質とTransitionTypeから報酬を作成
+	 */
+	public double calcReward() {
+		// TODO: 報酬関数を作る事．
+		return 1.0;
+	}
+
 	// =====================
 	// Getters & Setters
 	// =====================
@@ -57,10 +65,6 @@ public class Transition {
 	// =====================
 	// Methods
 	// =====================
-	public double calcReward() {
-		// TODO: 報酬関数を作る事
-		return 1.0;
-	}
 
 	@Override
 	public String toString() {

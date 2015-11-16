@@ -2,19 +2,24 @@ package pomdp;
 
 public class Observation {
 	// ==================
+	// Constants
+	// ==================
+	public static double NONE = -1.0;
+
+	// ==================
 	// Fields
 	// ==================
 	private State mState;
 	private Action mAction;
-	private int mObservation;
+	private double mEvaluation; // {-1,0.2,0.4,0.6,0.8,1.0}
 
 	// ==================
 	// Constructors
 	// ==================
-	public Observation(Action pAction, State pState, int pObservation) {
+	public Observation(Action pAction, State pState, double pEvaluation) {
 		mAction = pAction;
 		mState = pState;
-		mObservation = pObservation;
+		mEvaluation = Utility.round(pEvaluation, 2); // 品質は小数2位
 	}
 
 	// ==================
@@ -28,8 +33,8 @@ public class Observation {
 		return mAction;
 	}
 
-	public int getObservation() {
-		return mObservation;
+	public double getObservation() {
+		return mEvaluation;
 	}
 
 	// ==================
@@ -41,7 +46,9 @@ public class Observation {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((mAction == null) ? 0 : mAction.hashCode());
-		result = prime * result + mObservation;
+		long temp;
+		temp = Double.doubleToLongBits(mEvaluation);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((mState == null) ? 0 : mState.hashCode());
 		return result;
 	}
@@ -60,7 +67,7 @@ public class Observation {
 				return false;
 		} else if (!mAction.equals(other.mAction))
 			return false;
-		if (mObservation != other.mObservation)
+		if (Double.doubleToLongBits(mEvaluation) != Double.doubleToLongBits(other.mEvaluation))
 			return false;
 		if (mState == null) {
 			if (other.mState != null)
@@ -72,11 +79,12 @@ public class Observation {
 
 	@Override
 	public String toString() {
-		return "Z(" + mState.toString() + ", " + mAction.toString() + ", " + mObservation + ")";
+		return "Z(" + mState.toString() + ", " + mAction.toString() + ", " + mEvaluation + ")";
 	}
 
 	public String toName() {
-		return "o" + mObservation;
+		String name = (mEvaluation > 0.0) ? "o" + Utility.removeDot(Double.toString(mEvaluation)) : "NONE";
+		return name;
 	}
 
 }

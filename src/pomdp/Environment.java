@@ -98,6 +98,7 @@ public class Environment {
 		}
 
 		// TODO: 観測確率の計算
+		mOManager.calcObservations(mSManager, mActionSet);
 	}
 
 	/**
@@ -291,8 +292,10 @@ public class Environment {
 			actionIndex++;
 		}
 
-		// 総状態数
-		ans += String.format("# + State : %d\n", mSManager.getSize());
+		ans += String.format("# + State : %d\n", mSManager.getSize()); // 状態数
+		ans += String.format("# + Transition : %d\n", mTManager.getSize()); // 状態遷移数
+		ans += String.format("# + Observation : %d\n", mOManager.getSize()); // 観測確率数
+
 		ans += String.format("# \n# ******************************************\n\n");
 		return ans;
 	}

@@ -158,10 +158,7 @@ public class PomdpSolveWriter {
 		pw.printf("\n# == observations\n");
 
 		pw.printf("observations: ");
-		for (Observation o : mEnv.getOManager().getObservations()) {
-			pw.printf("%s ", o.toName());
-		}
-		pw.printf("\n");
+		pw.printf("%s\n", mEnv.getOManager().toName());
 	}
 
 	/**

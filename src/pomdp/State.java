@@ -1,7 +1,5 @@
 package pomdp;
 
-import java.math.BigDecimal;
-
 /**
  * 状態クラス
  * 
@@ -21,12 +19,8 @@ public class State {
 	// ======================
 	public State(int pIndex, double pQuality, int pBudget) {
 		mIndex = pIndex;
-		mQuality = pQuality;
+		mQuality = Utility.round(pQuality, 2); // 品質は小数点2位
 		mBudget = pBudget;
-
-		// 2桁で品質を保持する
-		BigDecimal bd = new BigDecimal(mQuality);
-		mQuality = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
 
 	// コピーの作成
@@ -98,6 +92,6 @@ public class State {
 	}
 
 	public String toName() {
-		return Remover.removeDot(String.format("s%d_%.2f_%d", mIndex, mQuality, mBudget));
+		return Utility.removeDot(String.format("s%d_%.2f_%d", mIndex, mQuality, mBudget));
 	}
 }
