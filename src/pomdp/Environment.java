@@ -91,7 +91,10 @@ public class Environment {
 	 * POMDP環境を構築する
 	 */
 	public void build() {
-
+		// ---------------------------
+		// 状態遷移モデルの作成
+		// ---------------------------
+		System.out.print("building...");
 		for (Action action : mActionSet.getActions()) {
 			// 根ノードではNEXT以外はFAILにする
 			if (action.getType() == ActionType.NEXT) {
@@ -100,16 +103,23 @@ public class Environment {
 				fail(mSManager.getRootState(), action);
 			}
 		}
+		System.out.println("finish.");
 
-		// 観測確率の計算
+		// ---------------------------
+		// 観測モデルの計算
+		// ---------------------------
+		System.out.print("calculating...");
 		mOManager.calcObservations(mSManager, mActionSet);
+		System.out.println("finish.");
 	}
 
 	/**
 	 * pomdp形式で出力する．mode:0でpomdp, 1でmdp
 	 */
 	public void toPomdpSolver(String pPath, int mode) {
+		System.out.print("output...");
 		PomdpSolveWriter.getInstance(this).write(pPath, mode);
+		System.out.print("finish.");
 	}
 
 	// =====================
@@ -124,8 +134,8 @@ public class Environment {
 	private void expand(State pState, double pPrevQuality) {
 		if (!mSManager.contains(pState)) {
 			count++;
-			if (count % 100 == 0) {
-				System.out.println(count);
+			if (count % 1000 == 0) {
+				System.out.print(".");
 			}
 			for (Action action : mActionSet.getActions()) {
 				transit(pState, action, pPrevQuality);

@@ -1,7 +1,7 @@
 package pomdp;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import pomdp.Action.ActionType;
 
@@ -12,19 +12,19 @@ public class ActionSet {
 	// =================
 	// Fields
 	// =================
-	private Set<Action> mActions;
+	private List<Action> mActions;
 
 	// =================
 	// Constructors
 	// =================
 	public ActionSet() {
-		mActions = new HashSet<Action>();
+		mActions = new ArrayList<Action>();
 	}
 
 	// =================
 	// Getters & Setters
 	// =================
-	public Set<Action> getActions() {
+	public List<Action> getActions() {
 		return mActions;
 	}
 
@@ -32,14 +32,17 @@ public class ActionSet {
 	// Methods
 	// =================
 	public void add(Action pAction) {
-		mActions.add(pAction);
+		// 重複は許さない
+		if (!mActions.contains(pAction)) {
+			mActions.add(pAction);
+		}
 	}
 
 	/**
 	 * NEXTアクション集合を取得
 	 */
-	public Set<Action> getNextActions() {
-		Set<Action> actions = new HashSet<Action>();
+	public List<Action> getNextActions() {
+		List<Action> actions = new ArrayList<Action>();
 		for (Action a : mActions) {
 			if (a.getType() == ActionType.NEXT) {
 				actions.add(a);
@@ -51,8 +54,8 @@ public class ActionSet {
 	/**
 	 * CURRENTアクション集合を取得
 	 */
-	public Set<Action> getCurrentActions() {
-		Set<Action> actions = new HashSet<Action>();
+	public List<Action> getCurrentActions() {
+		List<Action> actions = new ArrayList<Action>();
 		for (Action a : mActions) {
 			if (a.getType() == ActionType.CURR) {
 				actions.add(a);

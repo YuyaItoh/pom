@@ -82,6 +82,13 @@ public class EnvironmentInitializer {
 			// =======================
 			// 行動集合の作成
 			// =======================
+
+			// Eオプションがある or Eが0でない場合，EVALアクションを追加
+			if (evalWage != 0) {
+				actions.add(new Action(ActionType.EVAL, evalWage));
+			}
+
+			// NEXT, CURRアクションの追加
 			for (Subtask st : tasks.getSubtasks()) {
 				// サブタスクのベース賃金±1でアクションを作成する
 				for (int i = -1 * searchRange; i <= searchRange; i++) {
@@ -90,10 +97,6 @@ public class EnvironmentInitializer {
 					actions.add((Action) ac);
 					actions.add((Action) an);
 				}
-			}
-			// Eオプションがある or Eが0でない場合，Evalアクションを追加
-			if (evalWage != 0) {
-				actions.add(new Action(ActionType.EVAL, evalWage));
 			}
 
 			// =======================
