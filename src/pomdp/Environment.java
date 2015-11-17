@@ -91,13 +91,17 @@ public class Environment {
 	 * POMDP環境を構築する
 	 */
 	public void build() {
-		// 状態遷移モデルの構築
-		// 根ノードではNEXTのみを展開する
-		for (Action a : mActionSet.getNextActions()) {
-			transit(mSManager.getRootState(), a, 1.0);
+
+		for (Action action : mActionSet.getActions()) {
+			// 根ノードではNEXT以外はFAILにする
+			if (action.getType() == ActionType.NEXT) {
+				transit(mSManager.getRootState(), action, 1.0);
+			} else {
+				fail(mSManager.getRootState(), action);
+			}
 		}
 
-		// TODO: 観測確率の計算
+		// 観測確率の計算
 		mOManager.calcObservations(mSManager, mActionSet);
 	}
 
@@ -117,14 +121,14 @@ public class Environment {
 	 * 
 	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void expand(State s, double prevQuality) {
-		if (!mSManager.contains(s)) {
+	private void expand(State pState, double pPrevQuality) {
+		if (!mSManager.contains(pState)) {
 			count++;
 			if (count % 100 == 0) {
 				System.out.println(count);
 			}
-			for (Action a : mActionSet.getActions()) {
-				transit(s, a, prevQuality);
+			for (Action action : mActionSet.getActions()) {
+				transit(pState, action, pPrevQuality);
 			}
 		}
 	}
@@ -134,7 +138,7 @@ public class Environment {
 	 * 
 	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void transit(State s, Action a, double prevQuality) {
+	private void transit(State pState, Action pAction, double pPrevQuality) {
 		// ********************************************
 		// [最終タスク]
 		// ・NEXT, 予算切れ: 報酬を与えて初期状態に戻る
@@ -146,25 +150,25 @@ public class Environment {
 		// ・NEXT, EVAL, CURRENT: 予算を減らして状態遷移
 		// ********************************************
 
-		if (isGoal((State) s, (Action) a)) {
-			goal(s, a);
+		if (isGoal((State) pState, (Action) pAction)) {
+			goal(pState, pAction);
 			return;
 		}
 
-		if (isBunkrupt((State) s, (Action) a)) {
-			bunkrupt(s, a);
+		if (isBunkrupt((State) pState, (Action) pAction)) {
+			fail(pState, pAction);
 			return;
 		}
 
-		switch (a.getType()) {
+		switch (pAction.getType()) {
 		case CURR:
-			actCurrent(s, a, prevQuality);
+			actCurrent(pState, pAction, pPrevQuality);
 			break;
 		case NEXT:
-			actNext(s, a, prevQuality);
+			actNext(pState, pAction, pPrevQuality);
 			break;
 		case EVAL:
-			actEval(s, a, prevQuality);
+			actEval(pState, pAction, pPrevQuality);
 			break;
 		default:
 			break;
@@ -174,20 +178,21 @@ public class Environment {
 	/**
 	 * CURRENTアクション
 	 */
-	private void actCurrent(State s, Action a, double prevQuality) {
+	private void actCurrent(State pState, Action pAction, double pPrevQuality) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.getIndex()), a.getWage(), prevQuality);
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(pState.getIndex()), pAction.getWage(),
+					pPrevQuality);
 			// 品質が高い方を保持
-			quality = (s.getQuality() > quality) ? s.getQuality() : quality;
-			State nextState = new State(s.getIndex(), quality, s.getBudget() - a.getWage());
+			quality = (pState.getQuality() > quality) ? pState.getQuality() : quality;
+			State nextState = new State(pState.getIndex(), quality, pState.getBudget() - pAction.getWage());
 
 			// 展開
-			expand(nextState, prevQuality);
+			expand(nextState, pPrevQuality);
 
 			// 状態，状態遷移の追加
 			mSManager.add(nextState);
-			mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), workerFreq.getValue());
+			mTManager.put(new Transition(pState, pAction, nextState, TransitionType.TRANSITION), workerFreq.getValue());
 
 		}
 	}
@@ -195,19 +200,19 @@ public class Environment {
 	/**
 	 * NEXTアクション
 	 */
-	private void actNext(State s, Action a, double prevQuality) {
+	private void actNext(State pState, Action pAction, double pPrevQuality) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(s.getIndex() + 1), a.getWage(),
-					s.getQuality());
-			State nextState = new State(s.getIndex() + 1, quality, s.getBudget() - a.getWage());
+			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(pState.getIndex() + 1), pAction.getWage(),
+					pState.getQuality());
+			State nextState = new State(pState.getIndex() + 1, quality, pState.getBudget() - pAction.getWage());
 
 			// 展開
-			expand(nextState, s.getQuality());
+			expand(nextState, pState.getQuality());
 
 			// 状態，状態遷移の追加
 			mSManager.add(nextState);
-			mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), workerFreq.getValue());
+			mTManager.put(new Transition(pState, pAction, nextState, TransitionType.TRANSITION), workerFreq.getValue());
 
 		}
 	}
@@ -215,25 +220,25 @@ public class Environment {
 	/**
 	 * EVALアクション
 	 */
-	private void actEval(State s, Action a, double prevQuality) {
-		State nextState = new State(s);
-		nextState.decreaseBudget(a.getWage());
+	private void actEval(State pState, Action pAction, double pPrevQuality) {
+		State nextState = new State(pState);
+		nextState.decreaseBudget(pAction.getWage());
 
 		// 展開
-		expand(nextState, prevQuality);
+		expand(nextState, pPrevQuality);
 
 		// 状態，状態遷移の追加
 		mSManager.add(nextState);
-		mTManager.put(new Transition(s, a, nextState, TransitionType.TRANSITION), 1.0);
+		mTManager.put(new Transition(pState, pAction, nextState, TransitionType.TRANSITION), 1.0);
 	}
 
 	/**
 	 * GOAL判定
 	 */
-	private boolean isGoal(State s, Action a) {
+	private boolean isGoal(State pState, Action pAction) {
 		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUE
-		if (s.getIndex() == mTaskSet.getDivNum()) {
-			if (a.getType() == ActionType.NEXT || s.getBudget() - a.getWage() < 0) {
+		if (pState.getIndex() == mTaskSet.getDivNum()) {
+			if (pAction.getType() == ActionType.NEXT || pState.getBudget() - pAction.getWage() < 0) {
 				return true;
 			}
 		}
@@ -243,22 +248,22 @@ public class Environment {
 	/**
 	 * BUNKRUPT判定
 	 */
-	private boolean isBunkrupt(State s, Action a) {
-		return (s.getBudget() - a.getWage()) < 0;
+	private boolean isBunkrupt(State pState, Action pAction) {
+		return (pState.getBudget() - pAction.getWage()) < 0;
 	}
 
 	/**
 	 * GOAL情報を付加して初期状態に戻る
 	 */
-	private void goal(State s, Action a) {
-		mTManager.put(new Transition(s, a, mSManager.getRootState(), TransitionType.GOAL), 1.0);
+	private void goal(State pState, Action pAction) {
+		mTManager.put(new Transition(pState, pAction, mSManager.getRootState(), TransitionType.GOAL), 1.0);
 	}
 
 	/**
 	 * BUNKRUPT情報を付加して初期状態に戻る
 	 */
-	private void bunkrupt(State s, Action a) {
-		mTManager.put(new Transition(s, a, mSManager.getRootState(), TransitionType.BUNKRUPT), 1.0);
+	private void fail(State pState, Action pAction) {
+		mTManager.put(new Transition(pState, pAction, mSManager.getRootState(), TransitionType.FAIL), 1.0);
 	}
 
 	@Override

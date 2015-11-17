@@ -12,7 +12,7 @@ public class EnvironmentInitializer {
 	/**
 	 * Environmentの作成
 	 */
-	public static Environment init(String filePath) {
+	public static Environment init(String pFilePath) {
 		// ***********************************
 		// 準備物
 		// + 予算
@@ -30,7 +30,7 @@ public class EnvironmentInitializer {
 		ActionSet actions = new ActionSet();
 
 		try {
-			File file = new File(filePath);
+			File file = new File(pFilePath);
 			BufferedReader br = new BufferedReader(new FileReader(file));
 
 			// ================

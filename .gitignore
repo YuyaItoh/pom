@@ -30,3 +30,5 @@ target
 *.input
 *.txt
 *.pomdp
+*.out
+*.policy

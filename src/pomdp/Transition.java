@@ -6,9 +6,9 @@ public class Transition {
 	// =====================
 	public enum TransitionType {
 		// GOAL: ワークフロー終了による遷移
-		// BUNKRUPT: 予算切れによる遷移
+		// FAIL: ワークフロー失敗の遷移
 		// TRANSITION: 途中遷移
-		GOAL, BUNKRUPT, TRANSITION
+		GOAL, FAIL, TRANSITION
 	}
 
 	// =====================
@@ -18,7 +18,9 @@ public class Transition {
 	private Action mAction;
 	private State mNextState;
 	private TransitionType mType;
-	private double mReward;
+	private double mReward; // 報酬は小数点1位まで
+
+	private final double PENALTY = -1000.0;
 
 	// =====================
 	// Constructors
@@ -28,15 +30,34 @@ public class Transition {
 		mAction = pAction;
 		mNextState = pNextState;
 		mType = pType;
-		calcReward();
+		mReward = Utility.round(calcReward(pType, pPrevState.getQuality()), 1);
 	}
 
 	/**
 	 * 品質とTransitionTypeから報酬を作成
 	 */
-	public double calcReward() {
-		// TODO: 報酬関数を作る事．
-		return 1.0;
+	public double calcReward(TransitionType pType, double pQuality) {
+		// *********************
+		// TRANSITIONなら0
+		// BUNKRUPTならPENALTY
+		// GOALなら報酬関数R(q)
+		// *********************
+		double reward;
+		switch (pType) {
+		case TRANSITION:
+			reward = 0.0;
+			break;
+		case FAIL:
+			reward = PENALTY;
+			break;
+		case GOAL:
+			reward = 1000 * ((Math.pow(Math.E, pQuality) - 1) / (Math.E - 1));
+			break;
+		default:
+			reward = 0.0;
+		}
+
+		return reward;
 	}
 
 	// =====================

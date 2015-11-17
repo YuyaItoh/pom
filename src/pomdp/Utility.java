@@ -21,11 +21,19 @@ public class Utility {
 	}
 
 	/**
-	 * 小数点をn桁に丸める
+	 * 小数点をn桁に丸める（四捨五入）
 	 */
 	public static double round(double val, int n) {
 		BigDecimal bd = new BigDecimal(val);
 		return bd.setScale(n, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+	/**
+	 * 小数点をn桁に丸める（切り捨て）
+	 */
+	public static double roundDown(double val, int n) {
+		BigDecimal bd = new BigDecimal(val);
+		return bd.setScale(n, BigDecimal.ROUND_DOWN).doubleValue();
 	}
 
 	/**

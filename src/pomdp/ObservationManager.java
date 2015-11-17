@@ -117,12 +117,16 @@ public class ObservationManager {
 
 			Observation o = new Observation(pAction, pState, eval);
 
-			// 最後の要素ならばprobSumを渡す
+			// *******************************************************
+			// + 確率というpieを取り合っていくことで確率和を1に決定する
+			// + 最後の要素は残りのpieを全て取る
+			// + 途中でpieが無くならないように，四捨五入ではなく切り捨て
+			// *******************************************************
 			double d = Utility.dnorm(eval, pState.getQuality(), VAR);
-			double prob = it.hasNext() ? Utility.round(d / dSum, 3) : Utility.round(probSum, 3);
-
-			// 追加と確率和の減算
+			double prob = it.hasNext() ? Utility.roundDown(d / dSum, 3) : probSum;
 			put(o, prob);
+
+			// 確率和の減算
 			probSum -= prob;
 		}
 	}

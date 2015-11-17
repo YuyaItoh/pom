@@ -40,8 +40,8 @@ public class PomdpSolveWriter {
 	 * 現在の環境をpomdp-solveの書式として出力する<br>
 	 * modeが0ならpomdp，1ならmdp
 	 */
-	public void write(String pPath, int mode) {
-		switch (mode) {
+	public void write(String pPath, int pMode) {
+		switch (pMode) {
 		case 0:
 			writePomdp(pPath);
 			break;
@@ -71,6 +71,10 @@ public class PomdpSolveWriter {
 			writeStates(pw); // 状態集合
 			writeActions(pw); // 行動集合
 			writeObservation(pw); // 観測集合
+
+			// 初期位置
+			pw.printf("\n# == start\n");
+			pw.printf("start: %s\n\n", mEnv.getSManager().getRootState().toName());
 
 			// 確率
 			writeTransitionProb(pw); // 遷移確率
@@ -102,6 +106,10 @@ public class PomdpSolveWriter {
 			// 定義
 			writeStates(pw); // 状態集合
 			writeActions(pw); // 行動集合
+
+			// 初期位置
+			pw.printf("\n# == start\n");
+			pw.printf("start: %s\n\n", mEnv.getSManager().getRootState().toName());
 
 			// 確率
 			writeTransitionProb(pw); // 遷移確率
@@ -207,23 +215,27 @@ public class PomdpSolveWriter {
 		// ********************************************
 		// R: <action> : <start-state> : <end-state> : <observation> %f
 		//
-		// 報酬は以下(上から優先順位が高い)
-		// 1. 最終状態から初期状態への遷移 : 0
-		// 2. 非最終状態から予算切れによる初期状態への遷移: -100
-		// 3. LISTENアクションによる遷移: 0
-		// 4. 上記以外: 遷移後の作業品質
+		// 報酬は以下
+		// + TRANSITION: 0
+		// + BUNKRUPT: PENALTY
+		// + GOAL: R(q)
 		//
-		// observationは報酬に影響を与えない
+		// 全部0で定義してから必要に応じて報酬を設定する
 		// ********************************************
 
 		pw.printf("\n# == rewards\n");
 		pw.printf("# == R: <action> : <start-state> : <end-state> : <observation> f\n\n");
 
-		for (Transition t : mEnv.getTManager().getTransitions()) {
-			pw.printf("R: %s : %s : %s : * %.3f\n", t.getAction().toName(), t.getPrevState().toName(),
-					t.getNextState().toName(), t.getReward());
-		}
+		// まずは全て0で定義
+		pw.printf("R: * : * : * : *  0.0\n");
 
+		for (Transition t : mEnv.getTManager().getTransitions()) {
+			// rewardが0でないTransitionのみ記述
+			if (t.getReward() != 0.0) {
+				pw.printf("R: %s : %s : %s : * %.1f\n", t.getAction().toName(), t.getPrevState().toName(),
+						t.getNextState().toName(), t.getReward());
+			}
+		}
 		pw.printf("\n");
 	}
 
