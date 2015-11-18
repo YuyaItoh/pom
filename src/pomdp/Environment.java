@@ -116,10 +116,31 @@ public class Environment {
 	/**
 	 * pomdp形式で出力する．mode:0でpomdp, 1でmdp
 	 */
-	public void toPomdpSolver(String pPath, int mode) {
+	public void writePomdp(String pPath, int mode) {
 		System.out.print("output...");
 		PomdpSolveWriter.getInstance(this).write(pPath, mode);
 		System.out.print("finish.");
+	}
+
+	/**
+	 * ワーカの待ち行列を作成する
+	 */
+	public void createWorkerQueue() {
+		mWorkerSet.createWorkerQueue(mTaskSet.getSubtaskNum());
+	}
+
+	/**
+	 * ファイルからワーカの待ち行列を読み込む
+	 */
+	public void readWorkerQueue(String pPath) {
+		mWorkerSet.readWorkerQueue(pPath);
+	}
+
+	/**
+	 * ワーカの待ち行列をファイルに書き込む
+	 */
+	public void writeWorkerQueue(String pPath) {
+		mWorkerSet.writeWorkerQueue(pPath);
 	}
 
 	// =====================
@@ -247,7 +268,7 @@ public class Environment {
 	 */
 	private boolean isGoal(State pState, Action pAction) {
 		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUE
-		if (pState.getIndex() == mTaskSet.getDivNum()) {
+		if (pState.getIndex() == mTaskSet.getSubtaskNum()) {
 			if (pAction.getType() == ActionType.NEXT || pState.getBudget() - pAction.getWage() < 0) {
 				return true;
 			}
@@ -288,7 +309,7 @@ public class Environment {
 		}
 
 		// サブタスク数，難易度，ベース賃金
-		ans += String.format("# + Task : %d\n", mTaskSet.getDivNum());
+		ans += String.format("# + Task : %d\n", mTaskSet.getSubtaskNum());
 		for (Map.Entry<Integer, Subtask> e : mTaskSet.mTasks.entrySet()) {
 			ans += String.format("# \t* (index, difficulty, base_wage) = (%d, %.2f, %d)\n", e.getKey(),
 					e.getValue().getDifficulty(), e.getValue().getBaseWage());

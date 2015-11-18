@@ -12,7 +12,7 @@ public class EnvironmentInitializer {
 	/**
 	 * Environmentの作成
 	 */
-	public static Environment init(String pFilePath) {
+	public static Environment generate(String pFilePath) {
 		// ***********************************
 		// 準備物
 		// + 予算

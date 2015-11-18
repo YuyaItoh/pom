@@ -14,31 +14,35 @@ public class TaskSet {
 	// ===================
 	// Fields
 	// ===================
-	private int mDivNum; // 分割数
+	private int mSubtaskNum; // サブタスク数
 	public Map<Integer, Subtask> mTasks;
 
 	// ===================
 	// Constructors
 	// ===================
 	public TaskSet() {
-		mDivNum = 0;
+		mSubtaskNum = 0;
 		mTasks = new HashMap<Integer, Subtask>();
 	}
 
-	public TaskSet(int pDivNum) {
-		mDivNum = pDivNum;
+	public TaskSet(int pSubtaskNum) {
+		mSubtaskNum = pSubtaskNum;
 		mTasks = new HashMap<Integer, Subtask>();
 	}
 
 	// ===================
 	// Getters & Setters
 	// ===================
-	public int getDivNum() {
-		return mDivNum;
+	public Map<Integer, Subtask> getTasks() {
+		return mTasks;
+	}
+
+	public int getSubtaskNum() {
+		return mSubtaskNum;
 	}
 
 	public void setDivNum(int pNum) {
-		mDivNum = pNum;
+		mSubtaskNum = pNum;
 	}
 
 	// ===================
@@ -69,7 +73,7 @@ public class TaskSet {
 
 	@Override
 	public String toString() {
-		return "Tasks(n:" + mDivNum + ", tasks=" + mTasks + ")";
+		return "Tasks(n:" + mSubtaskNum + ", tasks=" + mTasks + ")";
 	}
 
 }
