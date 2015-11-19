@@ -45,4 +45,15 @@ public class Utility {
 		}
 		return Math.exp(-0.5 * Math.pow(x - mean, 2.0) / var) / Math.sqrt(2.0 * Math.PI * var);
 	}
+
+	/**
+	 * 正規分布に従い乱数を発生させる
+	 */
+	public static double rnorm(double mean, double var) {
+		double c = Math.sqrt(-2.0 * Math.log(Math.random()));
+		if (Math.random() < 0.5) {
+			return c * Math.sin(2.0 * Math.PI * Math.random()) * var + mean;
+		}
+		return c * Math.cos(2.0 * Math.PI * Math.random()) * var + mean;
+	}
 }

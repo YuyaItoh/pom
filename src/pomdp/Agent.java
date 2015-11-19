@@ -16,8 +16,8 @@ abstract class Agent {
 	// ====================
 	protected AgentType mAgentType; // エージェントタイプ
 	protected TaskSet mTaskSet; // タスク集合
-	protected double mBudget; // 初期予算
-	protected double mRemainedBudget; // 残り予算
+	protected int mBudget; // 初期予算
+	protected int mRemainedBudget; // 残り予算
 	protected ActionSet mActionSet; // 行動集合
 	protected int mCurrentTaskIndex; // 現在のタスクインデックス
 
@@ -32,11 +32,11 @@ abstract class Agent {
 		return mTaskSet;
 	}
 
-	public double getBudget() {
+	public int getBudget() {
 		return mBudget;
 	}
 
-	public double getRemainedBudget() {
+	public int getRemainedBudget() {
 		return mRemainedBudget;
 	}
 

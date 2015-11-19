@@ -19,6 +19,7 @@ public class WorkerSet {
 	private final int QUEUE_MAX = 100; // ワーカの待受最大数
 	private Map<Worker, Double> mWorkers; // ワーカタイプ一覧
 	private Map<Integer, List<Worker>> mQueue; // タスクに対する待受ワーカ行列
+	private int mCurrentWorkerPtr; // ワーカのポインタ
 
 	// ==================
 	// Constructors
@@ -26,6 +27,7 @@ public class WorkerSet {
 	public WorkerSet() {
 		mWorkers = new HashMap<Worker, Double>();
 		mQueue = new HashMap<Integer, List<Worker>>();
+		mCurrentWorkerPtr = 0;
 	}
 
 	// ==================
@@ -85,6 +87,16 @@ public class WorkerSet {
 	 */
 	public void writeWorkerQueue(String pPath) {
 		// TODO 書込みの作成
+	}
+
+	/**
+	 * 指定したサブタスクにワーカが訪れる
+	 */
+	public Worker nextWorker(int pIndex) {
+		Worker worker = mQueue.get(pIndex).get(mCurrentWorkerPtr);
+		// ポインタのインクリメント
+		mCurrentWorkerPtr = (mCurrentWorkerPtr > QUEUE_MAX) ? 0 : mCurrentWorkerPtr + 1;
+		return worker;
 	}
 
 	@Override

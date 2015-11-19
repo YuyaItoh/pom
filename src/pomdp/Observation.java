@@ -1,17 +1,21 @@
 package pomdp;
 
+/**
+ * 観測値クラスとなってるが，実際は状態，行動，評価値の組み合わせのクラス<br>
+ * POMDPで言うところの観測値はmEvaluationとして内部に持たす
+ */
 public class Observation {
 	// ==================
 	// Constants
 	// ==================
-	public static double NONE = -1.0;
+	public static final double NONE = -1.0;
 
 	// ==================
 	// Fields
 	// ==================
 	private State mState;
 	private Action mAction;
-	private double mEvaluation; // {-1,0.2,0.4,0.6,0.8,1.0}
+	private double mEvaluation; // エージェントが知覚する観測値 {-1,0.2,0.4,0.6,0.8,1.0}
 
 	// ==================
 	// Constructors
