@@ -64,7 +64,7 @@ public class Simulator {
 				observation = execNextAction(worker, action.getWage());
 				break;
 			case EVAL:
-				observation = execNextAction(worker, action.getWage());
+				observation = execEvalAction(worker, action.getWage());
 				break;
 			default:
 				observation = Observation.NONE;
@@ -87,9 +87,7 @@ public class Simulator {
 	// =======================
 
 	/**
-	 * CURRアクションによる処理
-	 * 
-	 * @return 観測値としてNONE(-1)を返す
+	 * CURRアクションによる処理．観測値としてNONE(-1)を返す
 	 */
 	private double execCurrAction(Worker pWorker, int pWage) {
 		Subtask subtask = mTaskSet.getSubtask(mCurrentState.getIndex());
@@ -98,15 +96,13 @@ public class Simulator {
 
 		// 状態の更新
 		mPrevState = mCurrentState;
-		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainedBudget() - pWage);
+		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainingBudget() - pWage);
 
 		return Observation.NONE;
 	}
 
 	/**
-	 * NEXTアクションによる処理．
-	 * 
-	 * @return 観測値としてNONE(-1)を返す
+	 * NEXTアクションによる処理．観測値としてNONE(-1)を返す
 	 */
 	private double execNextAction(Worker pWorker, int pWage) {
 		Subtask subtask = mTaskSet.getSubtask(mCurrentState.getIndex() + 1);
@@ -115,26 +111,25 @@ public class Simulator {
 		// 状態の更新
 		mPrevState = mCurrentState;
 		mPrevSubtaskQuality = mPrevState.getQuality();
-		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainedBudget() - pWage);
+		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainingBudget() - pWage);
 
 		return Observation.NONE;
 	}
 
 	/**
-	 * EVALアクションによる処理<br>
+	 * EVALアクションによる処理．ワーカから評価値を受け取る．<br>
 	 * ワーカを引数に取るが，今回はワーカの能力は考えない
 	 */
 	private double execEvalAction(Worker pWorker, int pWage) {
-		// TODO: Evalアクションの処理の追加
+		// ワーカに評価基準を渡して評価値を受け取る
+		double evaluation = pWorker.evaluate(mCurrentState.getQuality(), mEnv.getOManager().getEvaluations());
 
-		// 評価値をワーカから受け取るんだよ
-		// ワーカの能力は考慮しないんだよ
-		// 真の評価値を平均とした正規分布に従って，あるひとつの評価値を出すんだよ．
-		
-		
-		
-		
-		return -1.0;
+		// 状態の更新
+		mPrevState = mCurrentState;
+		mCurrentState = new State(mCurrentState.getIndex(), mCurrentState.getQuality(),
+				mAgent.getRemainingBudget() - pWage);
+
+		return evaluation;
 	}
 
 	/**
@@ -165,6 +160,6 @@ public class Simulator {
 	 * 終了判定
 	 */
 	private boolean isEnd() {
-		return (mCurrentState.getIndex() > mTaskSet.getSubtaskNum() || mAgent.getRemainedBudget() <= 0);
+		return (mCurrentState.getIndex() > mTaskSet.getSubtaskNum() || mAgent.getRemainingBudget() <= 0);
 	}
 }

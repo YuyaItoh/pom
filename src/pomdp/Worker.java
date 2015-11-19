@@ -1,10 +1,12 @@
 package pomdp;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * ワーカクラス．各ワーカは異なる能力を持つ
- * 
- * @author y-itoh
- *
  */
 public class Worker {
 	// ====================
@@ -41,16 +43,67 @@ public class Worker {
 	}
 
 	/**
-	 * サブタスクの品質評価を行い，評価値を返す．評価値は{0.2, 0.4, 0.6, 0.8, 1.0}の5通り
+	 * サブタスクの品質評価を行う．mEvaluationsに評価基準のリカード尺度を指定する
 	 */
-	public double evaluate(double pQuality) {
-		// TODO: 実装する
-		return 0.0;
+	public double evaluate(double pQuality, Set<Double> pEvaluations) {
+		Map<Double, Double> evalProbs = new HashMap<Double, Double>();
+		double dSum = calcDensitySum(pQuality, pEvaluations);
+
+		// 確率の計算
+		double probSum = 1.0;
+		Iterator<Double> it = pEvaluations.iterator();
+		while (it.hasNext()) {
+			double eval = (double) it.next();
+
+			// NONEは無視
+			if (eval == Observation.NONE) {
+				continue;
+			}
+
+			double d = Utility.dnorm(eval, pQuality, ObservationManager.VAR);
+			double prob = it.hasNext() ? Utility.roundDown(d / dSum, 3) : probSum;
+
+			evalProbs.put(eval, prob); // 確率の計算
+			probSum -= prob; // 確率和の減算
+		}
+
+		// 乱数を発生させて，評価値を取得する
+		double rand = Math.random();
+		for (Map.Entry<Double, Double> evalProb : evalProbs.entrySet()) {
+			// randが0以下になった時の評価値を返す
+			rand -= evalProb.getValue();
+
+			if (rand <= 0) {
+				return evalProb.getKey();
+			}
+		}
+
+		return Observation.NONE;
 	}
 
 	@Override
 	public String toString() {
 		return "W(" + mAbility + ")";
+	}
+
+	// ==========================
+	// Private Methods
+	// ==========================
+
+	/**
+	 * 正規化を行うための確率密度和を計算する
+	 */
+	private double calcDensitySum(double pQuality, Set<Double> pEvaluations) {
+		// 密度総和の取得
+		double dSum = 0.0;
+		for (double eval : pEvaluations) {
+			// NONEは無視する
+			if (eval == Observation.NONE) {
+				continue;
+			}
+			dSum += Utility.dnorm(eval, pQuality, ObservationManager.VAR);
+		}
+		return dSum;
 	}
 
 }

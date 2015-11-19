@@ -58,7 +58,7 @@ public class DifAgent extends Agent {
 		Action action = (mCurrentIteration < mIterationNum) ? selectCurrAction() : selectNextAction();
 
 		// 予算の更新
-		mRemainedBudget -= action.getWage();
+		mRemainingBudget -= action.getWage();
 
 		return action;
 	}

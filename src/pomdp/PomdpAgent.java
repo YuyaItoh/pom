@@ -67,10 +67,10 @@ public class PomdpAgent extends Agent {
 		// そうでないならば，最適方策で支払う
 		// *********************************
 		if (isLastTask()) {
-			double payoff = mRemainedBudget;
+			double payoff = mRemainingBudget;
 
 			// 予算の更新
-			mRemainedBudget -= payoff;
+			mRemainingBudget -= payoff;
 			mCurrentTaskIndex++;
 			return payoff;
 		}
@@ -97,7 +97,7 @@ public class PomdpAgent extends Agent {
 		mPrevAction = a.mName;
 
 		// 予算とタスクidxの更新
-		mRemainedBudget -= a.mPay;
+		mRemainingBudget -= a.mPay;
 		mCurrentTaskIndex = (a.getType() == ActionType.EVAL) ? mCurrentTaskIndex : mCurrentTaskIndex + 1;
 
 		return a.mPay;

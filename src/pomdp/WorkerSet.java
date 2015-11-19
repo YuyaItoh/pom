@@ -127,7 +127,7 @@ public class WorkerSet {
 		for (Map.Entry<Worker, Double> e : mWorkers.entrySet()) {
 			// randが0以下になった時のワーカを返す
 			rand -= e.getValue();
-			if (rand < 0) {
+			if (rand <= 0) {
 				return e.getKey();
 			}
 		}
