@@ -59,7 +59,7 @@ public class ObservationManager {
 	}
 
 	// ==========================
-	// Methods
+	// Public Methods
 	// ==========================
 	/**
 	 * 観測確率の計算
@@ -84,6 +84,78 @@ public class ObservationManager {
 		}
 	}
 
+	/**
+	 * 観測値の追加
+	 */
+	public void put(Observation pObservation, double pProb) {
+		mObservations.put(pObservation, pProb);
+	}
+
+	/**
+	 * 全観測確率数の取得
+	 */
+	public int getSize() {
+		return mObservations.size();
+	}
+
+	/**
+	 * 指定した観測組み合わせの確率を取得
+	 */
+	public double getObservationProbability(Action pAction, State pState, double pEvaluation) {
+		Observation o = new Observation(pAction, pState, pEvaluation);
+		if (mObservations.containsKey(o)) {
+			return mObservations.get(o);
+		} else {
+			System.err.println("There is no such a Observation --" + o.toString());
+			return -1.0;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((mObservations == null) ? 0 : mObservations.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ObservationManager other = (ObservationManager) obj;
+		if (mObservations == null) {
+			if (other.mObservations != null)
+				return false;
+		} else if (!mObservations.equals(other.mObservations))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Observations(" + getSize() + ") = " + mObservations;
+	}
+
+	/**
+	 * 観測値（評価値）をStringとしてpomdp書式にする
+	 */
+	public String toName() {
+		String str = "";
+		for (double eval : mEvaluations) {
+			String name = (eval > 0.0) ? "o" + Utility.removeDot(Double.toString(eval)) : "NONE";
+			str += (name + " ");
+		}
+		return str;
+	}
+
+	// ==========================
+	// Private Methods
+	// ==========================
 	/**
 	 * EVALアクションによる観測確率の計算
 	 */
@@ -129,61 +201,5 @@ public class ObservationManager {
 			// 確率和の減算
 			probSum -= prob;
 		}
-	}
-
-	/**
-	 * 観測値の追加
-	 */
-	public void put(Observation pObservation, double pProb) {
-		mObservations.put(pObservation, pProb);
-	}
-
-	/**
-	 * 全観測確率数の取得
-	 */
-	public int getSize() {
-		return mObservations.size();
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((mObservations == null) ? 0 : mObservations.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ObservationManager other = (ObservationManager) obj;
-		if (mObservations == null) {
-			if (other.mObservations != null)
-				return false;
-		} else if (!mObservations.equals(other.mObservations))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Observations(" + getSize() + ") = " + mObservations;
-	}
-
-	/**
-	 * 観測値（評価値）をStringとしてpomdp書式にする
-	 */
-	public String toName() {
-		String str = "";
-		for (double eval : mEvaluations) {
-			String name = (eval > 0.0) ? "o" + Utility.removeDot(Double.toString(eval)) : "NONE";
-			str += (name + " ");
-		}
-		return str;
 	}
 }

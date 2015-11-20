@@ -4,9 +4,6 @@ import java.util.Arrays;
 
 /**
  * 超平面クラス．直線（ベクトル）とも言える
- * 
- * @author y-itoh
- *
  */
 public class Plane {
 	// ==============

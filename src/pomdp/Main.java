@@ -77,10 +77,10 @@ public class Main {
 			Agent agent;
 			switch (pAgentType) {
 			case "equal":
-				agent = new EqualAgent(env, AgentType.EQUAL);
+				// agent = new EqualAgent(env, AgentType.EQUAL);
 				break;
 			case "dif":
-				agent = new DifAgent(env, AgentType.DIF);
+				// agent = new DifAgent(env, AgentType.DIF);
 				break;
 			case "pomdp":
 				agent = new PomdpAgent(env, pPolicyPath, AgentType.POMDP);
@@ -92,8 +92,8 @@ public class Main {
 			// シミュレーションの実行
 			System.out.println("== " + i + " th simulation");
 			String outputPath = getPreffix(new File(pInputPath).getName()) + "_sim_" + pAgentType + i + ".result";
-			Simulator sim = new Simulator(env, agent);
-			sim.run(outputPath);
+			// Simulator sim = new Simulator(env, agent);
+			// sim.run(outputPath);
 		}
 	}
 
@@ -156,6 +156,14 @@ public class Main {
 		Main m = new Main();
 
 		// ==================
+		// Dubeg Mode
+		// ==================
+		boolean debug = true;
+		if (debug) {
+			m.execPomdp("test.input");
+			return;
+		}
+		// ==================
 		// 引数準備
 		// ==================
 		String mode = args[0];
@@ -194,7 +202,8 @@ public class Main {
 			}
 
 			// シミュレーション実行
-			m.execSimulation(inputPath, policyPath, queuePath, simulationNum, agentType);
+			// m.execSimulation(inputPath, policyPath, queuePath, simulationNum,
+			// agentType);
 			break;
 		default:
 			System.out.println("未定義のモード");
