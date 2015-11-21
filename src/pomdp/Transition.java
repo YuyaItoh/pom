@@ -25,12 +25,19 @@ public class Transition {
 	// =====================
 	// Constructors
 	// =====================
-	public Transition(State pPrevState, Action pAction, State pNextState, TransitionType pType) {
+	public Transition(State pPrevState, Action pAction, State pNextState, TransitionType pTransitionType) {
 		mPrevState = pPrevState;
 		mAction = pAction;
 		mNextState = pNextState;
-		mType = pType;
-		mReward = Utility.round(calcReward(pType, pPrevState.getQuality()), 1);
+		mType = pTransitionType;
+		mReward = Utility.round(calcReward(pTransitionType, pPrevState.getQuality()), 1);
+	}
+
+	public Transition(State pPrevState, Action pAction, State pNextState) {
+		mPrevState = pPrevState;
+		mAction = pAction;
+		mNextState = pNextState;
+		mReward = 0.0;
 	}
 
 	/**
@@ -99,10 +106,6 @@ public class Transition {
 		result = prime * result + ((mAction == null) ? 0 : mAction.hashCode());
 		result = prime * result + ((mNextState == null) ? 0 : mNextState.hashCode());
 		result = prime * result + ((mPrevState == null) ? 0 : mPrevState.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(mReward);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((mType == null) ? 0 : mType.hashCode());
 		return result;
 	}
 
@@ -129,10 +132,6 @@ public class Transition {
 			if (other.mPrevState != null)
 				return false;
 		} else if (!mPrevState.equals(other.mPrevState))
-			return false;
-		if (Double.doubleToLongBits(mReward) != Double.doubleToLongBits(other.mReward))
-			return false;
-		if (mType != other.mType)
 			return false;
 		return true;
 	}

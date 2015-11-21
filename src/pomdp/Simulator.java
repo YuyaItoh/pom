@@ -30,15 +30,20 @@ public class Simulator {
 	// Constructors
 	// =======================
 
-	public Simulator(Environment pEnv, TaskSet pTaskSet, WorkerSet pWorkerSet, Agent pAgent) {
+	public Simulator(Environment pEnv, Agent pAgent) {
+		// 環境設定変数
 		mEnv = pEnv;
-		mWorkerSet = pWorkerSet;
-		mAgent = pAgent;
-		mResults = new ArrayList<Result>();
+		mWorkerSet = mEnv.getWorkerSet();
+		mTaskSet = mEnv.getTaskSet();
 
+		// エージェントの状態把握用の変数
+		mAgent = pAgent;
 		mCurrentState = new State(0, 1.0, mAgent.getBudget());
 		mPrevState = new State(mCurrentState);
 		mPrevSubtaskQuality = mPrevState.getQuality();
+
+		// 結果変数
+		mResults = new ArrayList<Result>();
 	}
 
 	// =======================

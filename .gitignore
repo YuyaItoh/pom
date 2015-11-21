@@ -27,8 +27,12 @@ target
 *.swp
 *.bak
 *.~
+
+# POMDP ----------------------
 *.input
 *.txt
 *.pomdp
 *.out
 *.policy
+*.conf
+*.environment

@@ -1,5 +1,12 @@
 package pomdp;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,15 +85,64 @@ public class WorkerSet {
 	/**
 	 * ファイルから待受ワーカ列を読み込む
 	 */
-	public void readWorkerQueue(String pPath) {
-		// TODO 読込みパーザの作成
+	public void readWorkerQueue(String pFilePath) {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader((new File(pFilePath))));
+
+			// 行単位で読込み
+			String str;
+			while ((str = br.readLine()) != null) {
+				// コメントアウトは処理しない
+				if (str.length() == 0 || str.charAt(0) == '#') {
+					continue;
+				}
+
+				// 空白区切り
+				String words[] = str.split(" ");
+				int index = Integer.parseInt(words[0]); // サブタスクindex
+
+				List<Worker> workers = new ArrayList<Worker>(); // 待受ワーカ
+				for (int i = 1; i < words.length; i++) {
+					double ability = Double.parseDouble(words[i]);
+					workers.add(new Worker(ability));
+				}
+				mQueue.put(index, workers);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**
 	 * 待受ワーカ列をファイルに書き込む
 	 */
-	public void writeWorkerQueue(String pPath) {
-		// TODO 書込みの作成
+	public void writeWorkerQueue(String pFilePath) {
+		File file;
+		PrintWriter pw = null;
+		try {
+			file = new File(pFilePath);
+			pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+
+			for (Map.Entry<Integer, List<Worker>> indexWorkers : mQueue.entrySet()) {
+				pw.printf("%d", indexWorkers.getKey());
+				for (Worker worker : indexWorkers.getValue()) {
+					pw.printf(" %.2f", worker.getAbility());
+				}
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+		} finally {
+			pw.close();
+		}
 	}
 
 	/**

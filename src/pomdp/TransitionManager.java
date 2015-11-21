@@ -52,6 +52,18 @@ public class TransitionManager {
 	}
 
 	/**
+	 * 観測確率を取得
+	 */
+	public double getProbability(State pPrevState, Action pAction, State pNextState) {
+		Transition t = new Transition(pPrevState, pAction, pNextState);
+		if (mTransitions.containsKey(t)) {
+			System.out.println("No Transition found --" + t.toString());
+			return -1.0;
+		}
+		return mTransitions.get(t);
+	}
+
+	/**
 	 * 全遷移数を取得
 	 */
 	public int getSize() {

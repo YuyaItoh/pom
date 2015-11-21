@@ -14,6 +14,7 @@ public class PomdpAgent extends Agent {
 	// Fields
 	// ====================
 	private Environment mEnv; // 環境
+	private State[] mStates; // 状態配列
 	private Policy mPolicy; // 方策
 	private double[] mBelief; // 信念ベクトル
 	private ActionSet mActionSet;// 行動集合
@@ -22,10 +23,11 @@ public class PomdpAgent extends Agent {
 	// ====================
 	// Constructors
 	// ====================
-	public PomdpAgent(Environment pEnv, String pPolicyPath, AgentType pAgentType) {
+	public PomdpAgent(Environment pEnv, String pPolicyPath, String pPomdpPath, AgentType pAgentType) {
 		super(pEnv, pAgentType);
 		mEnv = pEnv;
 		mPolicy = null;
+		mStates = PomdpParser.getStates(pPomdpPath);
 		mActionSet = mEnv.getActionSet();
 
 		// JSONの読込み
@@ -133,7 +135,16 @@ public class PomdpAgent extends Agent {
 		// 信念b(i)を計算
 		for (int i = 0; i < mBelief.length; i++) {
 			double reachProb = 0.0; // 状態s'への到達可能性，Σ_s T(s, a, s')b(s)
-			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, pState, pEvaluation); // 観測oの取得可能性，P(o'|s',a)
+			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[i], pObservation); // 観測oの取得可能性，P(o'|s',a)
+
+			// 到達確率Σ_s P(s'|s,a)b(s)の計算
+			for (int j = 0; j < mBelief.length; j++) {
+				reachProb += mEnv.getTManager().getProbability(mStates[j], mPrevAction, mStates[i]) * mBelief[i];
+			}
+
+			// 状態iの信念
+			updatedBelief[i] = observeProb * reachProb;
+			probSum += updatedBelief[i];
 		}
 
 		// 正規化する
