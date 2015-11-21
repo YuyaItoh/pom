@@ -15,8 +15,6 @@ import java.util.Set;
 
 /**
  * ワーカ集合.ワーカとその出現頻度を指定<br>
- * 
- * @author y-itoh
  *
  */
 public class WorkerSet {
@@ -25,7 +23,7 @@ public class WorkerSet {
 	// ==================
 	private final int QUEUE_MAX = 100; // ワーカの待受最大数
 	private Map<Worker, Double> mWorkers; // ワーカタイプ一覧
-	private Map<Integer, List<Worker>> mQueue; // タスクに対する待受ワーカ行列
+	private List<Worker> mQueue; // タスクに対する待受ワーカ行列
 	private int mCurrentWorkerPtr; // ワーカのポインタ
 
 	// ==================
@@ -33,7 +31,7 @@ public class WorkerSet {
 	// ==================
 	public WorkerSet() {
 		mWorkers = new HashMap<Worker, Double>();
-		mQueue = new HashMap<Integer, List<Worker>>();
+		mQueue = new ArrayList<Worker>();
 		mCurrentWorkerPtr = 0;
 	}
 
@@ -77,9 +75,7 @@ public class WorkerSet {
 	 * サブタスク数とワーカ数を指定して，各サブタスクに対する待受ワーカ列を作成する
 	 */
 	public void createWorkerQueue(int pTaskNum) {
-		for (int i = 1; i <= pTaskNum; i++) {
-			mQueue.put(i, random(QUEUE_MAX));
-		}
+		mQueue.addAll(random(QUEUE_MAX));
 	}
 
 	/**
@@ -100,14 +96,12 @@ public class WorkerSet {
 
 				// 空白区切り
 				String words[] = str.split(" ");
-				int index = Integer.parseInt(words[0]); // サブタスクindex
-
 				List<Worker> workers = new ArrayList<Worker>(); // 待受ワーカ
-				for (int i = 1; i < words.length; i++) {
+				for (int i = 0; i < words.length; i++) {
 					double ability = Double.parseDouble(words[i]);
 					workers.add(new Worker(ability));
 				}
-				mQueue.put(index, workers);
+				mQueue.addAll(workers);
 			}
 		} catch (Exception e) {
 			System.out.println(e);
@@ -132,26 +126,30 @@ public class WorkerSet {
 			file = new File(pFilePath);
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
-			for (Map.Entry<Integer, List<Worker>> indexWorkers : mQueue.entrySet()) {
-				pw.printf("%d", indexWorkers.getKey());
-				for (Worker worker : indexWorkers.getValue()) {
-					pw.printf(" %.2f", worker.getAbility());
-				}
+			for (Worker worker : mQueue) {
+				pw.printf("%.2f ", worker.getAbility());
 			}
-		} catch (IOException e) {
+		} catch (
+
+		IOException e)
+
+		{
 			System.out.println(e);
-		} finally {
+		} finally
+
+		{
 			pw.close();
 		}
+
 	}
 
 	/**
 	 * 指定したサブタスクにワーカが訪れる
 	 */
 	public Worker nextWorker(int pIndex) {
-		Worker worker = mQueue.get(pIndex).get(mCurrentWorkerPtr);
-		// ポインタのインクリメント
-		mCurrentWorkerPtr = (mCurrentWorkerPtr > QUEUE_MAX) ? 0 : mCurrentWorkerPtr + 1;
+		Worker worker = mQueue.get(mCurrentWorkerPtr);
+		// ポインタが待ち行列の末尾まできたら0に戻る
+		mCurrentWorkerPtr = (mCurrentWorkerPtr == QUEUE_MAX - 1) ? 0 : mCurrentWorkerPtr + 1;
 		return worker;
 	}
 

@@ -10,11 +10,13 @@ public class EqualAgent extends Agent {
 	private int mIterationNum; // 各サブタスクに対する繰り返し数
 	private int mCurrentIteration; // 現在の繰り返し回数
 	private int mWage; // 各ワーカに支払う賃金
+	private boolean mIsFirstAction;
 
 	public EqualAgent(Environment pEnv, AgentType pAgentType, int pIterationNum) {
 		super(pEnv, pAgentType);
 		mCurrentIteration = 0;
 		mIterationNum = pIterationNum;
+		mIsFirstAction = true;
 
 		// ワーカへの賃金は予算を（繰り返し数 * サブタスク数）で割った値
 		// FIXME: 切り捨てになってるから予算残るけど．．．どうしよう？
@@ -23,8 +25,14 @@ public class EqualAgent extends Agent {
 
 	@Override
 	public Action selectAction() {
+		Action action;
 		// 現在の状況によって異なる行動を取る
-		Action action = (mCurrentIteration < mIterationNum) ? selectCurrAction() : selectNextAction();
+		if (mIsFirstAction || (mCurrentIteration >= mIterationNum)) {
+			action = selectNextAction();
+			mIsFirstAction = false;
+		} else {
+			action = selectCurrAction();
+		}
 
 		// 予算の更新
 		mRemainingBudget -= action.getWage();

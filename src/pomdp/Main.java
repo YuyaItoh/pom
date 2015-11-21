@@ -53,20 +53,19 @@ public class Main {
 		// =====================
 		// 環境構築
 		// =====================
-		Environment env = EnvironmentInitializer.generate(pEnvironmentPath);
+		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
 		String currentTimeString = getCurrentTime();
 
 		// =====================
 		// ワーカキューの設定
 		// =====================
-		boolean createFlag = (pQueuePath == null);
-		if (createFlag) {
+		if (pQueuePath == null) {
 			// 待ち行列ファイルの作成（および書込み）
-			env.createWorkerQueue();
-			env.writeWorkerQueue("queue_" + currentTimeString + ".conf");
+			environment.createWorkerQueue();
+			environment.writeWorkerQueue("queue_" + currentTimeString + ".conf");
 		} else {
 			// 待ち行列ファイルの読込み
-			env.readWorkerQueue(pQueuePath); // 読込
+			environment.readWorkerQueue(pQueuePath); // 読込
 		}
 
 		// =====================
@@ -75,13 +74,13 @@ public class Main {
 		Agent agent;
 		switch (pAgentType) {
 		case "equal":
-			agent = new EqualAgent(env, AgentType.EQUAL, pIterationNum);
+			agent = new EqualAgent(environment, AgentType.EQUAL, pIterationNum);
 			break;
 		case "dif":
-			agent = new DifAgent(env, AgentType.DIF, pIterationNum);
+			agent = new DifAgent(environment, AgentType.DIF, pIterationNum);
 			break;
 		case "pomdp":
-			agent = new PomdpAgent(env, pPolicyPath, pPomdpPath, AgentType.POMDP);
+			agent = new PomdpAgent(environment, pPolicyPath, pPomdpPath, AgentType.POMDP);
 			break;
 		default:
 			agent = null;
@@ -93,7 +92,7 @@ public class Main {
 		System.out.println("simulating...");
 		String outputPath = getPreffix(new File(pEnvironmentPath).getName()) + "_" + pAgentType + "_"
 				+ currentTimeString + ".result";
-		Simulator sim = new Simulator(env, agent);
+		Simulator sim = new Simulator(environment, agent);
 		sim.run(outputPath);
 		System.out.println("finished");
 	}
@@ -173,7 +172,7 @@ public class Main {
 		Options options = new Options();
 
 		// 各モード共通
-		options.addOption("m", "mode", true, "execution mode(pomdp, mdp, simulation");
+		options.addOption("m", "mode", true, "execution mode(pomdp, mdp, simulation)");
 		options.addOption("e", "environment", true, "envieonment file(***.environment)");
 		options.addOption("h", "help", false, "help");
 		options.addOption("d", "debug", false, "debug mode");
@@ -181,7 +180,7 @@ public class Main {
 		// simulationモードのみで利用
 		options.addOption("c", "policy", true, "policy file(***.policy.json)");
 		options.addOption("p", "pomdp", true, "pomdp file(***.pomdp)");
-		options.addOption("a", "agent", true, "agent type(equal, dif, pomdp");
+		options.addOption("a", "agent", true, "agent type(equal, dif, pomdp)");
 		options.addOption("q", "queue", true, "worker queue file(queue.conf)");
 		options.addOption("i", "iteration", true, "number of iteration");
 
@@ -205,6 +204,9 @@ public class Main {
 		if (cl.hasOption("environment")) {
 			environmentPath = cl.getOptionValue("environment");
 		}
+		if (cl.hasOption("agent")) {
+			agentType = cl.getOptionValue("agent");
+		}
 		if (cl.hasOption("policy")) {
 			policyPath = cl.getOptionValue("policy");
 		}
@@ -219,25 +221,28 @@ public class Main {
 		}
 
 		// ==================
-		// デバッグモード
-		// ==================
-		if (cl.hasOption("debug")) {
-			// test.environmentでpomdp実行
-			m.execPomdp("test.environment");
-
-			System.out.println("\n\t\t *END*");
-			long end = System.currentTimeMillis();
-			double time_second = (end - start) / 1000.0;
-			System.out.println("time: " + time_second + "s.\n");
-			return;
-		}
-
-		// ==================
 		// help実行
 		// ==================
 		if (cl.hasOption("h")) {
 			HelpFormatter hf = new HelpFormatter();
 			hf.printHelp("help", options);
+			return;
+		}
+
+		// ==================
+		// デバッグモード
+		// ==================
+		boolean debug = false;
+		if (cl.hasOption("debug") || debug) {
+			System.out.println("********************");
+			System.out.println("*    Debug Mode    *");
+			System.out.println("********************");
+			m.execSimulation("test.environment", "equal", "queue_1121_233802.conf", null, null, 5);
+
+			System.out.println("\n\t\t *END*");
+			long end = System.currentTimeMillis();
+			double time_second = (end - start) / 1000.0;
+			System.out.println("time: " + time_second + "s.\n");
 			return;
 		}
 

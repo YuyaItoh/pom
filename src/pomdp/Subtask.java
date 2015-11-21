@@ -41,7 +41,7 @@ public class Subtask {
 	// ==================
 	@Override
 	public String toString() {
-		return "SubTask(w:" + mBaseWage + ", d=" + mDifficulty + ")";
+		return "SubTask(base_wage:" + mBaseWage + ", dif:" + mDifficulty + ")";
 	}
 
 }

@@ -26,6 +26,8 @@ public class Simulator {
 	State mPrevState; // 前状態
 	double mPrevSubtaskQuality; // 前サブタスクの品質
 
+	boolean mIsEnd; // 終了フラグ
+
 	// =======================
 	// Constructors
 	// =======================
@@ -35,6 +37,7 @@ public class Simulator {
 		mEnv = pEnv;
 		mWorkerSet = mEnv.getWorkerSet();
 		mTaskSet = mEnv.getTaskSet();
+		mIsEnd = false;
 
 		// エージェントの状態把握用の変数
 		mAgent = pAgent;
@@ -54,34 +57,56 @@ public class Simulator {
 	 * シミュレーションを実行し，ファイルに書き込む
 	 */
 	public void run(String output) {
+		// ****************************************
+		// FIXME:
+		// nextWorkerあたりで終了条件が上手く言っていない
+		// 今は来訪ワーカをタスクご毎に分けているから，未定義のサブタスクインデックスに対して参照しようとしている
+		// 対処法としては
+		// (1)来訪ワーカをインデックス毎に分離しない
+		// (2)上手く予算切れの時に処理を行う
+		// ****************************************
+
 		// 予算切れ or 全サブタスク終了までループ
 		do {
 			Action action = mAgent.selectAction(); // 行動の受信
-			Worker worker = mWorkerSet.nextWorker(mCurrentState.getIndex()); // ワーカの決定
-			double observation; // エージェントの観測値
+			double observation = Observation.NONE; // エージェントの観測値
+			Worker worker = null; // 来訪ワーカ
 
 			// サブタスク実行
 			switch (action.getType()) {
 			case CURR:
+				worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
 				observation = execCurrAction(worker, action.getWage());
 				break;
 			case NEXT:
-				observation = execNextAction(worker, action.getWage());
+				// FIXME 最終タスクでNEXTタスクを行うと終了する
+				if (mCurrentState.getIndex() != mTaskSet.getSubtaskNum()) {
+					worker = mWorkerSet.nextWorker(mCurrentState.getIndex() + 1);
+					observation = execNextAction(worker, action.getWage());
+				} else {
+					mIsEnd = true;
+				}
 				break;
 			case EVAL:
+				worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
 				observation = execEvalAction(worker, action.getWage());
 				break;
 			default:
+				worker = null;
 				observation = Observation.NONE;
 				break;
 			}
 
-			// 観測値の送信
-			mAgent.update(observation);
+			// 終了フラグが無いならばログの追加
+			if (!mIsEnd) {
+				// 観測値の送信
+				mAgent.update(observation);
 
-			// ログの追加
-			mResults.add(new Result(mPrevState, action, worker, mCurrentState));
-		} while (!isEnd());
+				// ログの追加
+				Result res = new Result(mPrevState, action, worker, mCurrentState);
+				mResults.add(res);
+			}
+		} while (!isBunkrupt() && !mIsEnd);
 
 		// 結果の出力
 		writeResult(output);
@@ -164,7 +189,7 @@ public class Simulator {
 	/**
 	 * 終了判定
 	 */
-	private boolean isEnd() {
-		return (mCurrentState.getIndex() > mTaskSet.getSubtaskNum() || mAgent.getRemainingBudget() <= 0);
+	private boolean isBunkrupt() {
+		return mAgent.getRemainingBudget() <= 0;
 	}
 }
