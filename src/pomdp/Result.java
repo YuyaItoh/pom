@@ -8,19 +8,29 @@ public class Result {
 	// =======================
 	// Fields
 	// =======================
-	public State mPrevState;
-	public Action mAction;
-	public Worker mWorker;
-	public State mNextState;
+	private State mPrevState;
+	private Action mAction;
+	private Worker mWorker;
+	private State mNextState;
+	private boolean mIsEnd;
 
 	// =======================
 	// Constructors
 	// =======================
+
+	/**
+	 * 終了時のログ
+	 */
+	public Result() {
+		mIsEnd = true;
+	}
+
 	public Result(State pPrevState, Action pAction, Worker pWorker, State pNextState) {
 		mPrevState = pPrevState;
 		mAction = pAction;
-		mWorker = pWorker;
 		mNextState = pNextState;
+		mWorker = pWorker;
+		mIsEnd = false;
 	}
 
 	// =======================
@@ -30,10 +40,16 @@ public class Result {
 	@Override
 	public String toString() {
 		String str = "";
-		str += "PrevState = " + mPrevState.toString() + "\n";
-		str += "Action = " + mAction.toString() + "\n";
-		str += "Worker = " + mWorker.toString() + "\n";
-		str += "NextState = " + mNextState.toString() + "\n";
+
+		if (!mIsEnd) {
+			str += "PrevState = " + mPrevState.toString() + "\n";
+			str += "Action = " + mAction.toString() + "\n";
+			str += "Worker = " + mWorker.toString() + "\n";
+			str += "NextState = " + mNextState.toString() + "\n";
+		} else {
+			str += "----- Workflow Finished -----";
+		}
+
 		return str;
 	}
 

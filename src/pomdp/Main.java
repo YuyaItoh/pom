@@ -237,7 +237,7 @@ public class Main {
 			System.out.println("********************");
 			System.out.println("*    Debug Mode    *");
 			System.out.println("********************");
-			m.execSimulation("test.environment", "equal", "queue_1121_233802.conf", null, null, 5);
+			m.execSimulation("test.environment", "dif", "queue.conf", null, null, 5);
 
 			System.out.println("\n\t\t *END*");
 			long end = System.currentTimeMillis();

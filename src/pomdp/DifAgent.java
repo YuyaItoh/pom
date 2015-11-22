@@ -16,6 +16,7 @@ public class DifAgent extends Agent {
 	private int mIterationNum; // 各サブタスクに対する繰り返し数
 	private Map<Integer, Integer> mWages; // 各サブタスクに支払う賃金
 	private int mCurrentIteration; // 現在の繰り返し数
+	private boolean mIsFirstAction;
 
 	// =========================
 	// Constructors
@@ -25,6 +26,7 @@ public class DifAgent extends Agent {
 		mIterationNum = pIterationNum;
 		mCurrentIteration = 0;
 		mWages = new HashMap<Integer, Integer>();
+		mIsFirstAction = true;
 		calcWages();
 	}
 
@@ -54,9 +56,15 @@ public class DifAgent extends Agent {
 
 	@Override
 	public Action selectAction() {
+		Action action;
+		// FIXME: シミュレーションを実行するとぬるぽが発生するので修正すること！！
 		// 現在の状況によって異なる行動を取る
-		Action action = (mCurrentIteration < mIterationNum) ? selectCurrAction() : selectNextAction();
-
+		if (mIsFirstAction || (mCurrentIteration >= mIterationNum)) {
+			action = selectNextAction();
+			mIsFirstAction = false;
+		} else {
+			action = selectCurrAction();
+		}
 		// 予算の更新
 		mRemainingBudget -= action.getWage();
 
@@ -91,6 +99,14 @@ public class DifAgent extends Agent {
 		// 反復回数を1にリセット
 		mCurrentIteration = 1;
 
-		return new Action(ActionType.NEXT, mWages.get(mCurrentTaskIndex));
+		// 全サブタスクが終了した場合は-1の報酬額を払うことで終了合図
+		Action action;
+		if (mWages.containsKey(mCurrentTaskIndex)) {
+			action = new Action(ActionType.NEXT, mWages.get(mCurrentTaskIndex));
+		} else {
+			action = new Action(ActionType.NEXT, -1);
+		}
+
+		return action;
 	}
 }

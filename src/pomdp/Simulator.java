@@ -16,17 +16,17 @@ public class Simulator {
 	// =======================
 	// Fields
 	// =======================
-	Environment mEnv; // 環境
-	TaskSet mTaskSet; // 対象タスク
-	WorkerSet mWorkerSet; // ワーカ集合
-	Agent mAgent; // エージェント
-	List<Result> mResults; // 結果格納
+	private Environment mEnv; // 環境
+	private TaskSet mTaskSet; // 対象タスク
+	private WorkerSet mWorkerSet; // ワーカ集合
+	private Agent mAgent; // エージェント
+	private List<Result> mResults; // 結果格納
 
-	State mCurrentState; // 現在状態
-	State mPrevState; // 前状態
-	double mPrevSubtaskQuality; // 前サブタスクの品質
+	private State mCurrentState; // 現在状態
+	private State mPrevState; // 前状態
+	private double mPrevSubtaskQuality; // 前サブタスクの品質
 
-	boolean mIsEnd; // 終了フラグ
+	private boolean mIsEnd; // シミュレーション終了判定フラグ
 
 	// =======================
 	// Constructors
@@ -71,42 +71,40 @@ public class Simulator {
 			Action action = mAgent.selectAction(); // 行動の受信
 			double observation = Observation.NONE; // エージェントの観測値
 			Worker worker = null; // 来訪ワーカ
+			Result res;
 
-			// サブタスク実行
-			switch (action.getType()) {
-			case CURR:
-				worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
-				observation = execCurrAction(worker, action.getWage());
-				break;
-			case NEXT:
-				// FIXME 最終タスクでNEXTタスクを行うと終了する
-				if (mCurrentState.getIndex() != mTaskSet.getSubtaskNum()) {
+			// ワークフロー終了判定（報酬が負，予算が負）
+			if (isValidAction(action)) {
+				// サブタスク実行
+				switch (action.getType()) {
+				case CURR:
+					worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
+					observation = execCurrAction(worker, action.getWage());
+					break;
+				case NEXT:
 					worker = mWorkerSet.nextWorker(mCurrentState.getIndex() + 1);
 					observation = execNextAction(worker, action.getWage());
-				} else {
-					mIsEnd = true;
+					break;
+				case EVAL:
+					worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
+					observation = execEvalAction(worker, action.getWage());
+					break;
+				default:
+					worker = null;
+					observation = Observation.NONE;
+					break;
 				}
-				break;
-			case EVAL:
-				worker = mWorkerSet.nextWorker(mCurrentState.getIndex());
-				observation = execEvalAction(worker, action.getWage());
-				break;
-			default:
-				worker = null;
-				observation = Observation.NONE;
-				break;
-			}
-
-			// 終了フラグが無いならばログの追加
-			if (!mIsEnd) {
-				// 観測値の送信
+				// 観測値の送信とログの追加
 				mAgent.update(observation);
-
-				// ログの追加
-				Result res = new Result(mPrevState, action, worker, mCurrentState);
-				mResults.add(res);
+				res = new Result(mPrevState, action, worker, mCurrentState);
+			} else {
+				// 終了ログを記述
+				res = new Result();
+				mIsEnd = true;
 			}
-		} while (!isBunkrupt() && !mIsEnd);
+
+			mResults.add(res);
+		} while (!mIsEnd);
 
 		// 結果の出力
 		writeResult(output);
@@ -187,9 +185,16 @@ public class Simulator {
 	}
 
 	/**
-	 * 終了判定
+	 * 報酬額を見ることで有効な行動か判定する
 	 */
-	private boolean isBunkrupt() {
-		return mAgent.getRemainingBudget() <= 0;
+	private boolean isValidAction(Action pAction) {
+		// 予算切れの場合や報酬額が負の場合にはfalseを返す
+		if (pAction.getWage() <= 0) {
+			return false;
+		}
+		if (mAgent.getRemainingBudget() - pAction.getWage() < 0) {
+			return false;
+		}
+		return true;
 	}
 }

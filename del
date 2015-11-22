@@ -1,4 +1,4 @@
 #!/bin/sh
 
 #（*.conf, *.result）を削除
-rm *.conf *.result
+rm queue_*.conf *.result

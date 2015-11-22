@@ -69,6 +69,14 @@ public class EqualAgent extends Agent {
 		// 反復回数を1にリセット
 		mCurrentIteration = 1;
 
-		return new Action(ActionType.NEXT, mWage);
+		// 全サブタスクが終了した場合は-1の報酬額を払うことで終了合図
+		Action action;
+		if (mCurrentTaskIndex > mTaskSet.getSubtaskNum()) {
+			action = new Action(ActionType.NEXT, mWage);
+		} else {
+			action = new Action(ActionType.NEXT, -1);
+		}
+
+		return action;
 	}
 }
