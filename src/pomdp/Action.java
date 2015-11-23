@@ -46,6 +46,22 @@ public class Action {
 	// Methods
 	// ===================
 
+	/**
+	 * StringからActionTypeを取得
+	 */
+	public static ActionType parseType(String pStr) {
+		switch (pStr.toLowerCase()) {
+		case "eval":
+			return ActionType.EVAL;
+		case "curr":
+			return ActionType.CURR;
+		case "next":
+			return ActionType.NEXT;
+		default:
+			return null;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "A(" + mType + ", w:" + mWage + ")";

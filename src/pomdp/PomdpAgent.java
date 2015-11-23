@@ -15,9 +15,9 @@ public class PomdpAgent extends Agent {
 	// ====================
 	private Environment mEnv; // 環境
 	private State[] mStates; // 状態配列
+	private Action[] mActions; // 行動配列
 	private Policy mPolicy; // 方策
 	private double[] mBelief; // 信念ベクトル
-	private ActionSet mActionSet;// 行動集合
 	private Action mPrevAction; // 直近のアクション
 
 	// ====================
@@ -27,20 +27,35 @@ public class PomdpAgent extends Agent {
 		super(pEnv, pAgentType);
 		mEnv = pEnv;
 		mPolicy = null;
-		mStates = PomdpParser.getStates(pPomdpPath);
-		mActionSet = mEnv.getActionSet();
 
-		// JSONの読込み
+		initPomdp(pPomdpPath);
+		initPolicy(pPolicyPath);
+	}
+
+	/**
+	 * Policyファイルを読込み方策を取得する
+	 */
+	private void initPolicy(String pPolicyPath) {
 		Gson gson = new Gson();
 		try {
 			JsonReader reader = new JsonReader(new BufferedReader(new FileReader(pPolicyPath)));
 			mPolicy = gson.fromJson(reader, Policy.class);
 
-			// 信念ベクトルの初期化
+			// 信念の初期化
 			initBelief();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+
+	}
+
+	/**
+	 * POMDPファイルを読込み，状態と行動を取得する
+	 */
+	private void initPomdp(String pFilePath) {
+		PomdpParser pp = new PomdpParser(pFilePath);
+		mStates = pp.getStates();
+		mActions = pp.getActions();
 	}
 
 	/**
@@ -83,8 +98,7 @@ public class PomdpAgent extends Agent {
 		}
 
 		// 最適方策
-		// TODO: インデックスからアクション取ってるけど，順序関係大丈夫かなあ？
-		Action action = mActionSet.getActions().get(maxPlane.action);
+		Action action = mActions[maxPlane.action];
 		mPrevAction = action;
 
 		// 予算とタスクインデックスの更新

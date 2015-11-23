@@ -18,7 +18,6 @@ abstract class Agent {
 	protected TaskSet mTaskSet; // タスク集合
 	protected int mBudget; // 初期予算
 	protected int mRemainingBudget; // 残り予算
-	protected ActionSet mActionSet; // 行動集合
 	protected int mCurrentTaskIndex; // 現在のタスクインデックス
 
 	// ====================
@@ -40,10 +39,6 @@ abstract class Agent {
 		return mRemainingBudget;
 	}
 
-	public ActionSet getActionSet() {
-		return mActionSet;
-	}
-
 	public int getCurrurentTaskIndex() {
 		return mCurrentTaskIndex;
 	}
@@ -60,7 +55,6 @@ abstract class Agent {
 		mBudget = pEnv.getBudget();
 		mRemainingBudget = mBudget;
 		mTaskSet = pEnv.getTaskSet();
-		mActionSet = pEnv.getActionSet();
 		mCurrentTaskIndex = 0;
 	}
 
