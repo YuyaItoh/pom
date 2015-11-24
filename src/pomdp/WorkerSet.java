@@ -104,7 +104,7 @@ public class WorkerSet {
 				mQueue.addAll(workers);
 			}
 		} catch (Exception e) {
-			System.out.println(e);
+			e.printStackTrace();
 		} finally {
 			if (br != null) {
 				try {

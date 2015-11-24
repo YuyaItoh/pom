@@ -1,2 +1,2 @@
 #!/bin/sh
-java -cp $POM/bin:$POM/lib/commons-cli-1.3.1.jar pomdp/Main $*
+java -cp $POM/bin:$POM/lib/commons-cli-1.3.1.jar:$POM/lib/gson-2.3.1.jar pomdp/Main $*

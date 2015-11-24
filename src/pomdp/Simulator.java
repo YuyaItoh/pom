@@ -57,21 +57,20 @@ public class Simulator {
 	 * シミュレーションを実行し，ファイルに書き込む
 	 */
 	public void run(String output) {
-		// ****************************************
-		// FIXME:
-		// nextWorkerあたりで終了条件が上手く言っていない
-		// 今は来訪ワーカをタスクご毎に分けているから，未定義のサブタスクインデックスに対して参照しようとしている
-		// 対処法としては
-		// (1)来訪ワーカをインデックス毎に分離しない
-		// (2)上手く予算切れの時に処理を行う
-		// ****************************************
+		System.out.println("**************************");
+		System.out.println("*    Simulation Start    *");
+		System.out.println("**************************");
 
+		int round = 1;
 		// 予算切れ or 全サブタスク終了までループ
 		do {
+			System.out.println("[START: round" + round + "]");
 			Action action = mAgent.selectAction(); // 行動の受信
 			double observation = Observation.NONE; // エージェントの観測値
 			Worker worker = null; // 来訪ワーカ
 			Result res;
+
+			System.out.println("action: " + action.toString());
 
 			// ワークフロー終了判定（報酬が負，予算が負）
 			if (isValidAction(action)) {
@@ -103,7 +102,11 @@ public class Simulator {
 				mIsEnd = true;
 			}
 
+			res.toString();
 			mResults.add(res);
+
+			System.out.println("[END: round" + round + "]");
+			round++;
 		} while (!mIsEnd);
 
 		// 結果の出力
@@ -139,7 +142,7 @@ public class Simulator {
 		// 状態の更新
 		mPrevState = mCurrentState;
 		mPrevSubtaskQuality = mPrevState.getQuality();
-		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainingBudget() - pWage);
+		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainingBudget());
 
 		return Observation.NONE;
 	}

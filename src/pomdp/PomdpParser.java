@@ -74,7 +74,7 @@ public class PomdpParser {
 					break;
 				case "actions:":
 					mActions = new Action[words.length - 1];
-					for (int i = 0; i < mStates.length; i++) {
+					for (int i = 0; i < mActions.length; i++) {
 						String actionStr = words[i + 1];
 						mActions[i] = toAction(actionStr);
 					}
@@ -93,8 +93,7 @@ public class PomdpParser {
 		} catch (IOException e) {
 			System.out.println(e);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("引数なし");
-			System.out.println(e);
+			e.printStackTrace();
 		} finally {
 			if (br != null) {
 				try {

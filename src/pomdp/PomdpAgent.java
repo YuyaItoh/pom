@@ -54,6 +54,7 @@ public class PomdpAgent extends Agent {
 	 */
 	private void initPomdp(String pFilePath) {
 		PomdpParser pp = new PomdpParser(pFilePath);
+		pp.parse();
 		mStates = pp.getStates();
 		mActions = pp.getActions();
 	}
@@ -73,7 +74,6 @@ public class PomdpAgent extends Agent {
 
 	@Override
 	public void update(Object o) {
-		// 信念状態の更新
 		updateBelief(mPrevAction, (double) o);
 	}
 
@@ -108,6 +108,17 @@ public class PomdpAgent extends Agent {
 		return action;
 	}
 
+	/**
+	 * 信念ベクトルの表示
+	 */
+	public void printBelief() {
+		System.out.print("[ ");
+		for (int i = 0; i < mBelief.length; i++) {
+			System.out.printf("%.3f ", mBelief[i]);
+		}
+		System.out.println("]");
+	}
+
 	// ====================
 	// Private Methods
 	// ====================
@@ -128,7 +139,6 @@ public class PomdpAgent extends Agent {
 	 * 行動と観測値をもとに信念状態を更新する
 	 */
 	private void updateBelief(Action pAction, double pObservation) {
-		// TODO: 実装
 		System.out.print("updating...");
 		// **********************************************************
 		// 信念状態の更新式は以下のように表される
@@ -147,18 +157,20 @@ public class PomdpAgent extends Agent {
 		double probSum = 0.0;
 
 		// 信念b(i)を計算
-		for (int i = 0; i < mBelief.length; i++) {
+		for (int after = 0; after < mBelief.length; after++) {
 			double reachProb = 0.0; // 状態s'への到達可能性，Σ_s T(s, a, s')b(s)
-			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[i], pObservation); // 観測oの取得可能性，P(o'|s',a)
+			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[after],
+					pObservation); // 観測oの取得可能性，P(o'|s',a)
 
 			// 到達確率Σ_s P(s'|s,a)b(s)の計算
-			for (int j = 0; j < mBelief.length; j++) {
-				reachProb += mEnv.getTManager().getProbability(mStates[j], mPrevAction, mStates[i]) * mBelief[i];
+			for (int before = 0; before < mBelief.length; before++) {
+				reachProb += mEnv.getTManager().getProbability(mStates[before], mPrevAction, mStates[after])
+						* mBelief[before];
 			}
 
 			// 状態iの信念
-			updatedBelief[i] = observeProb * reachProb;
-			probSum += updatedBelief[i];
+			updatedBelief[after] = observeProb * reachProb;
+			probSum += updatedBelief[after];
 		}
 
 		// 正規化する

@@ -2,9 +2,6 @@ package pomdp;
 
 /**
  * 状態クラス
- * 
- * @author y-itoh
- *
  */
 public class State {
 	// ======================

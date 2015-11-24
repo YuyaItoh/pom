@@ -106,8 +106,9 @@ public class ObservationManager {
 		if (mObservations.containsKey(o)) {
 			return mObservations.get(o);
 		} else {
+			// ないものは全て0を返す
 			System.err.println("There is no such a Observation --" + o.toString());
-			return -1.0;
+			return 0.0;
 		}
 	}
 

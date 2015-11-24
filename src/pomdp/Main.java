@@ -54,6 +54,8 @@ public class Main {
 		// 環境構築
 		// =====================
 		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
+		environment.build();
+
 		String currentTimeString = getCurrentTime();
 
 		// =====================
@@ -162,7 +164,7 @@ public class Main {
 		String environmentPath = null; // 環境パス
 		String policyPath = null; // 方策パス
 		String pomdpPath = null; // pomdpパス
-		int iterationNum = 0; // サブタスク繰り返し回数
+		int iterationNum = 1; // サブタスク繰り返し回数
 		String agentType = null; // エージェントタイプ
 		String queuePath = null; // ワーカキューパス
 
@@ -226,6 +228,11 @@ public class Main {
 		if (cl.hasOption("h")) {
 			HelpFormatter hf = new HelpFormatter();
 			hf.printHelp("help", options);
+
+			System.out.println("\nExample");
+			System.out.println("cmd -m pomdp -e test.environment ");
+			System.out.println(
+					"cmd -m simulation --environment test.environment --agent pomdp --pomdp test.pomdp --policy test.policy --queue queue.conf");
 			return;
 		}
 
@@ -234,10 +241,16 @@ public class Main {
 		// ==================
 		boolean debug = false;
 		if (cl.hasOption("debug") || debug) {
-			System.out.println("********************");
-			System.out.println("*    Debug Mode    *");
-			System.out.println("********************");
-			m.execSimulation("test.environment", "dif", "queue.conf", null, null, 5);
+			System.out.println("=========================");
+			System.out.println("  WARNING: Debug Mode    ");
+			System.out.println("=========================");
+
+			// POMDPファイル作成のデバッグ
+			// m.execPomdp("test.environment");
+
+			// シミュレーションのデバッグ
+			// (envPath, agentType, queuePath, pomdpPath, policyPath, iteration)
+			m.execSimulation("test.environment", "pomdp", null, "test.pomdp", "test.policy.json", 0);
 
 			System.out.println("\n\t\t *END*");
 			long end = System.currentTimeMillis();

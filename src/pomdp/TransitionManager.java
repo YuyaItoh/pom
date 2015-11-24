@@ -41,6 +41,7 @@ public class TransitionManager {
 	/**
 	 * 遷移情報の追加
 	 */
+
 	public void put(Transition pTransition, double pProb) {
 		// 既に同じ遷移がある場合には，遷移確率を上げる
 		double prob = mTransitions.containsKey(pTransition) ? mTransitions.get(pTransition) + pProb : pProb;
@@ -56,11 +57,15 @@ public class TransitionManager {
 	 */
 	public double getProbability(State pPrevState, Action pAction, State pNextState) {
 		Transition t = new Transition(pPrevState, pAction, pNextState);
-		if (mTransitions.containsKey(t)) {
-			System.out.println("No Transition found --" + t.toString());
-			return -1.0;
+		double prob;
+
+		// 格納されていない遷移は全て0.0
+		if (!mTransitions.containsKey(t)) {
+			prob = 0.0;
+		} else {
+			prob = mTransitions.get(t);
 		}
-		return mTransitions.get(t);
+		return prob;
 	}
 
 	/**

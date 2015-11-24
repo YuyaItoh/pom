@@ -36,3 +36,6 @@ target
 *.policy
 *.conf
 *.environment
+*.result
+*.json
+*.rb
