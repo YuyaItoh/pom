@@ -1,7 +1,7 @@
 package pomdp;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +20,7 @@ public class StateManager {
 	// =================
 	public StateManager(State pRootState) {
 		mRootState = pRootState;
-		mStates = new HashMap<Integer, Set<State>>();
+		mStates = new LinkedHashMap<Integer, Set<State>>();
 		add(mRootState);
 	}
 

@@ -239,18 +239,25 @@ public class Main {
 		// ==================
 		// デバッグモード
 		// ==================
-		boolean debug = false;
+
+		// -- 設定項目 -----------------------------------------------
+		boolean debug = true;
+		boolean simulation = false; // true: simulation, false: pomdp
+		// ----------------------------------------------------------
+
 		if (cl.hasOption("debug") || debug) {
 			System.out.println("=========================");
 			System.out.println("  WARNING: Debug Mode    ");
 			System.out.println("=========================");
 
-			// POMDPファイル作成のデバッグ
-			// m.execPomdp("test.environment");
-
-			// シミュレーションのデバッグ
-			// (envPath, agentType, queuePath, pomdpPath, policyPath, iteration)
-			m.execSimulation("test.environment", "pomdp", null, "test.pomdp", "test.policy.json", 0);
+			if (simulation) {
+				// シミュレーションのデバッグ
+				// (env, agent, queue, pomdp, policy, iteration)
+				m.execSimulation("test.environment", "pomdp", "queue.conf", "test.pomdp", "test.policy.json", 0);
+			} else {
+				// POMDPファイル作成のデバッグ
+				m.execPomdp("test.environment");
+			}
 
 			System.out.println("\n\t\t *END*");
 			long end = System.currentTimeMillis();

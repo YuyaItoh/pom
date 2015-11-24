@@ -1,8 +1,9 @@
 package pomdp;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,16 +16,16 @@ public class ObservationManager {
 	// =========================
 	public static final double VAR = 0.03; // TODO: いい感じの分散の決定
 	private Map<Observation, Double> mObservations;
-	private Set<Double> mEvaluations; // ワーカの評価値
+	private List<Double> mEvaluations; // ワーカの評価値
 
 	// =========================
 	// Constructors
 	// =========================
 	public ObservationManager() {
-		mObservations = new HashMap<Observation, Double>();
+		mObservations = new LinkedHashMap<Observation, Double>();
 
 		// 観測値の決定
-		mEvaluations = new HashSet<Double>();
+		mEvaluations = new ArrayList<Double>();
 		mEvaluations.add(Observation.NONE);
 		mEvaluations.add(0.2);
 		mEvaluations.add(0.4);
@@ -54,7 +55,7 @@ public class ObservationManager {
 	/**
 	 * 全評価値（観測値）の取得
 	 */
-	public Set<Double> getEvaluations() {
+	public List<Double> getEvaluations() {
 		return mEvaluations;
 	}
 

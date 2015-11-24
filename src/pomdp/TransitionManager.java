@@ -1,6 +1,6 @@
 package pomdp;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ public class TransitionManager {
 	// Constructors
 	// ==================
 	public TransitionManager() {
-		mTransitions = new HashMap<Transition, Double>();
+		mTransitions = new LinkedHashMap<Transition, Double>();
 	}
 
 	// ==================

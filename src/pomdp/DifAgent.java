@@ -1,6 +1,6 @@
 package pomdp;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import pomdp.Action.ActionType;
@@ -25,7 +25,7 @@ public class DifAgent extends Agent {
 		super(pEnv, pAgentType);
 		mIterationNum = pIterationNum;
 		mCurrentIteration = 0;
-		mWages = new HashMap<Integer, Integer>();
+		mWages = new LinkedHashMap<Integer, Integer>();
 		mIsFirstAction = true;
 		calcWages();
 	}

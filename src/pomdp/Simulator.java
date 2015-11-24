@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import pomdp.Action.ActionType;
+
 /**
  * 環境を読み込んでシミュレーションを行うクラス
  *
@@ -188,14 +190,22 @@ public class Simulator {
 	}
 
 	/**
-	 * 報酬額を見ることで有効な行動か判定する
+	 * 有効な行動か判定
 	 */
 	private boolean isValidAction(Action pAction) {
-		// 予算切れの場合や報酬額が負の場合にはfalseを返す
+		// -----------------------------
+		// 無効な行動とは以下の場合
+		// 1. 賃金が負の行動
+		// 2. 予算を上回る賃金
+		// 3. 最終タスクでNEXTアクション
+		// -----------------------------
 		if (pAction.getWage() <= 0) {
 			return false;
 		}
 		if (mAgent.getRemainingBudget() - pAction.getWage() < 0) {
+			return false;
+		}
+		if (mCurrentState.getIndex() == mTaskSet.getSubtaskNum() && pAction.getType() == ActionType.NEXT) {
 			return false;
 		}
 		return true;

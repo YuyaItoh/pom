@@ -1,7 +1,7 @@
 package pomdp;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -22,12 +22,12 @@ public class TaskSet {
 	// ===================
 	public TaskSet() {
 		mSubtaskNum = 0;
-		mTasks = new HashMap<Integer, Subtask>();
+		mTasks = new LinkedHashMap<Integer, Subtask>();
 	}
 
 	public TaskSet(int pSubtaskNum) {
 		mSubtaskNum = pSubtaskNum;
-		mTasks = new HashMap<Integer, Subtask>();
+		mTasks = new LinkedHashMap<Integer, Subtask>();
 	}
 
 	// ===================

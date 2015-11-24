@@ -1,9 +1,9 @@
 package pomdp;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * ワーカクラス．各ワーカは異なる能力を持つ
@@ -45,8 +45,8 @@ public class Worker {
 	/**
 	 * サブタスクの品質評価を行う．mEvaluationsに評価基準のリカード尺度を指定する
 	 */
-	public double evaluate(double pQuality, Set<Double> pEvaluations) {
-		Map<Double, Double> evalProbs = new HashMap<Double, Double>();
+	public double evaluate(double pQuality, List<Double> pEvaluations) {
+		Map<Double, Double> evalProbs = new LinkedHashMap<Double, Double>();
 		double dSum = calcDensitySum(pQuality, pEvaluations);
 
 		// 確率の計算
@@ -93,7 +93,7 @@ public class Worker {
 	/**
 	 * 正規化を行うための確率密度和を計算する
 	 */
-	private double calcDensitySum(double pQuality, Set<Double> pEvaluations) {
+	private double calcDensitySum(double pQuality, List<Double> pEvaluations) {
 		// 密度総和の取得
 		double dSum = 0.0;
 		for (double eval : pEvaluations) {
