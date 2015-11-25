@@ -15,7 +15,7 @@ public class TaskSet {
 	// Fields
 	// ===================
 	private int mSubtaskNum; // サブタスク数
-	public Map<Integer, Subtask> mTasks;
+	private Map<Integer, Subtask> mTasks;
 
 	// ===================
 	// Constructors

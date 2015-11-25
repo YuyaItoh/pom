@@ -241,8 +241,8 @@ public class Main {
 		// ==================
 
 		// -- 設定項目 -----------------------------------------------
-		boolean debug = true;
-		boolean simulation = true; // true: simulation, false: pomdp
+		boolean debug = false;
+		boolean simulation = false; // true: simulation, false: pomdp
 		// ----------------------------------------------------------
 
 		if (cl.hasOption("debug") || debug) {

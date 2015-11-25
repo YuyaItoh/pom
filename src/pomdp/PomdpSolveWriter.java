@@ -12,6 +12,7 @@ public class PomdpSolveWriter {
 	// ===============
 	// Fields
 	// ===============
+	private final double DISCOUNT = 0.99;
 	private static PomdpSolveWriter mInstance;
 	private Environment mEnv;
 
@@ -64,7 +65,7 @@ public class PomdpSolveWriter {
 			writeEnvironment(pw); // 環境情報
 
 			// discount, values
-			pw.printf("discount: %f\n", 0.9);
+			pw.printf("discount: %.2f\n", DISCOUNT);
 			pw.printf("values: reward\n\n");
 
 			// 定義

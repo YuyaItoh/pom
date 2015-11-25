@@ -165,32 +165,22 @@ public class Environment {
 	}
 
 	/**
-	 * 遷移
-	 * 
-	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
+	 * 状態sでアクションaを実行した場合の遷移の処理．
 	 */
 	private void transit(State pState, Action pAction, double pPrevQuality) {
-		// ********************************************
-		// [最終タスク]
-		// ・NEXT, 予算切れ: 報酬を与えて初期状態に戻る
-		// ・EVAL, CURRENT: 予算を減らして状態遷移
-		// ・
-		//
-		// [非最終タスク]
-		// ・予算切れ: 負の報酬を与え初期状態に遷移
-		// ・NEXT, EVAL, CURRENT: 予算を減らして状態遷移
-		// ********************************************
-
-		if (isGoal((State) pState, (Action) pAction)) {
+		// ゴールに到達するか判定
+		if (isGoal(pState, pAction)) {
 			goal(pState, pAction);
 			return;
 		}
 
-		if (isBunkrupt((State) pState, (Action) pAction)) {
+		// 予算切れになるか判定
+		if (isBunkrupt(pState, pAction)) {
 			fail(pState, pAction);
 			return;
 		}
 
+		// アクションに応じて遷移を決定する
 		switch (pAction.getType()) {
 		case CURR:
 			actCurrent(pState, pAction, pPrevQuality);
@@ -207,12 +197,11 @@ public class Environment {
 	}
 
 	/**
-	 * CURRENTアクション
+	 * 状態pStateでCURRENTアクションを選択した時の処理
 	 */
 	private void actCurrent(State pState, Action pAction, double pPrevQuality) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
-			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(pState.getIndex()), pAction.getWage(),
+			double quality = workerFreq.getKey().solve(mTaskSet.getSubtask(pState.getIndex()), pAction.getWage(),
 					pPrevQuality);
 			// 品質が高い方を保持
 			quality = (pState.getQuality() > quality) ? pState.getQuality() : quality;
@@ -229,12 +218,12 @@ public class Environment {
 	}
 
 	/**
-	 * NEXTアクション
+	 * 状態pStateでNEXTアクションを選択した時の処理
 	 */
 	private void actNext(State pState, Action pAction, double pPrevQuality) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
-			double quality = workerFreq.getKey().solve(mTaskSet.mTasks.get(pState.getIndex() + 1), pAction.getWage(),
+			double quality = workerFreq.getKey().solve(mTaskSet.getSubtask(pState.getIndex() + 1), pAction.getWage(),
 					pState.getQuality());
 			State nextState = new State(pState.getIndex() + 1, quality, pState.getBudget() - pAction.getWage());
 
@@ -249,7 +238,7 @@ public class Environment {
 	}
 
 	/**
-	 * EVALアクション
+	 * 状態pStateでEVALアクションを選択した時の処理
 	 */
 	private void actEval(State pState, Action pAction, double pPrevQuality) {
 		State nextState = new State(pState);
@@ -267,7 +256,7 @@ public class Environment {
 	 * GOAL判定
 	 */
 	private boolean isGoal(State pState, Action pAction) {
-		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUE
+		// 最終状態でNEXT or 最終状態で予算切れの場合にTRUEを返す
 		if (pState.getIndex() == mTaskSet.getSubtaskNum()) {
 			if (pAction.getType() == ActionType.NEXT || pState.getBudget() - pAction.getWage() < 0) {
 				return true;
@@ -310,7 +299,7 @@ public class Environment {
 
 		// サブタスク数，難易度，ベース賃金
 		ans += String.format("# + Task : %d\n", mTaskSet.getSubtaskNum());
-		for (Map.Entry<Integer, Subtask> e : mTaskSet.mTasks.entrySet()) {
+		for (Map.Entry<Integer, Subtask> e : mTaskSet.getTasks().entrySet()) {
 			ans += String.format("# \t* (index, difficulty, base_wage) = (%d, %.2f, %d)\n", e.getKey(),
 					e.getValue().getDifficulty(), e.getValue().getBaseWage());
 		}
