@@ -242,7 +242,7 @@ public class Main {
 
 		// -- 設定項目 -----------------------------------------------
 		boolean debug = true;
-		boolean simulation = false; // true: simulation, false: pomdp
+		boolean simulation = true; // true: simulation, false: pomdp
 		// ----------------------------------------------------------
 
 		if (cl.hasOption("debug") || debug) {
@@ -253,7 +253,7 @@ public class Main {
 			if (simulation) {
 				// シミュレーションのデバッグ
 				// (env, agent, queue, pomdp, policy, iteration)
-				m.execSimulation("test.environment", "equal", "queue.conf", "test.pomdp", "test.policy.json", 5);
+				m.execSimulation("test.environment", "pomdp", "queue.conf", "test.pomdp", "test.policy.json", 5);
 			} else {
 				// POMDPファイル作成のデバッグ
 				m.execPomdp("test.environment");

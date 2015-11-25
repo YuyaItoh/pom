@@ -25,8 +25,7 @@ public class Simulator {
 	private List<Result> mResults; // 結果格納
 
 	private State mCurrentState; // 現在状態
-	private State mPrevState; // 前状態（基本ログ取る用）
-	private double mPrevSubtaskQuality; // 前サブタスクの品質
+	private State mPrevState; // 前状態
 
 	private boolean mIsEnd; // シミュレーション終了判定フラグ
 
@@ -45,7 +44,6 @@ public class Simulator {
 		mAgent = pAgent;
 		mCurrentState = new State(0, 1.0, mAgent.getBudget(), 1.0);
 		mPrevState = new State(mCurrentState);
-		mPrevSubtaskQuality = mPrevState.getQuality();
 
 		// 結果変数
 		mResults = new ArrayList<Result>();
@@ -124,12 +122,13 @@ public class Simulator {
 	 */
 	private double execCurrAction(Worker pWorker, int pWage) {
 		Subtask subtask = mTaskSet.getSubtask(mCurrentState.getIndex());
-		double workerQuality = pWorker.solve(subtask, pWage, mPrevSubtaskQuality);
+		double workerQuality = pWorker.solve(subtask, pWage, mCurrentState.getPrevStateQuality());
 		double quality = (mCurrentState.getQuality() > workerQuality) ? mCurrentState.getQuality() : workerQuality;
 
 		// 状態の更新
 		mPrevState = mCurrentState;
-		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainingBudget());
+		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainingBudget(),
+				mPrevState.getPrevStateQuality());
 
 		return Observation.NONE;
 	}
@@ -143,8 +142,8 @@ public class Simulator {
 
 		// 状態の更新
 		mPrevState = mCurrentState;
-		mPrevSubtaskQuality = mPrevState.getQuality();
-		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainingBudget());
+		mCurrentState = new State(mCurrentState.getIndex() + 1, quality, mAgent.getRemainingBudget(),
+				mPrevState.getQuality());
 
 		return Observation.NONE;
 	}
@@ -160,7 +159,7 @@ public class Simulator {
 		// 状態の更新
 		mPrevState = mCurrentState;
 		mCurrentState = new State(mCurrentState.getIndex(), mCurrentState.getQuality(),
-				mAgent.getRemainingBudget() - pWage);
+				mAgent.getRemainingBudget() - pWage, mCurrentState.getPrevStateQuality());
 
 		return evaluation;
 	}

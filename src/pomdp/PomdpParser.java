@@ -109,16 +109,18 @@ public class PomdpParser {
 	// Private Methods
 	// ========================
 	/**
-	 * Stringから状態を作成する．"s1_072_5" -> （index:1, quality:0.72, budget:5）
+	 * Stringから状態を作成する．"s2_064_4_093" -> （i:2, q:0.64, b:5, prev_q:0.93）
 	 */
 	private State toState(String pStr) {
 		String[] data = pStr.substring(1, pStr.length()).split("_");
 		int index = Integer.parseInt(data[0]);
 		String qualityString = data[1].substring(0, 1) + "." + data[1].substring(1, data[1].length());
+		String prevQualityString = data[3].substring(0, 1) + "." + data[3].substring(1, data[3].length());
 		double quality = Double.parseDouble(qualityString);
+		double prevQuality = Double.parseDouble(prevQualityString);
 		int budget = Integer.parseInt(data[2]);
 
-		return new State(index, quality, budget);
+		return new State(index, quality, budget, prevQuality);
 	}
 
 	/**

@@ -46,10 +46,7 @@ public class Result {
 			str += "Action = " + mAction.toString() + "\n";
 			str += "Worker = " + mWorker.toString() + "\n";
 			str += "NextState = " + mNextState.toString() + "\n";
-		} else {
-			str += "----- Workflow Finished -----";
 		}
-
 		return str;
 	}
 

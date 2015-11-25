@@ -205,6 +205,7 @@ public class Environment {
 					pState.getPrevStateQuality());
 			// 品質が高い方を保持
 			quality = (pState.getQuality() > quality) ? pState.getQuality() : quality;
+
 			State nextState = new State(pState.getIndex(), quality, pState.getBudget() - pAction.getWage(),
 					pState.getPrevStateQuality());
 
