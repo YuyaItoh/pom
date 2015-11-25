@@ -47,8 +47,8 @@ public class Environment {
 	 * Manager変数の初期化
 	 */
 	private void initManager() {
-		State root = new State(0, 1.0, mBudget);
-		mSManager = new StateManager((State) root);
+		State root = new State(0, 1.0, mBudget, 1.0);
+		mSManager = new StateManager(root);
 		mTManager = new TransitionManager();
 		mOManager = new ObservationManager();
 	}
@@ -98,7 +98,7 @@ public class Environment {
 		for (Action action : mActionSet.getActions()) {
 			// 根ノードではNEXT以外はFAILにする
 			if (action.getType() == ActionType.NEXT) {
-				transit(mSManager.getRootState(), action, 1.0);
+				transit(mSManager.getRootState(), action);
 			} else {
 				fail(mSManager.getRootState(), action);
 			}
@@ -152,14 +152,14 @@ public class Environment {
 	 * 
 	 * @param prevQuality:前サブタスクの品質．CURRENTで利用
 	 */
-	private void expand(State pState, double pPrevQuality) {
+	private void expand(State pState) {
 		if (!mSManager.contains(pState)) {
 			count++;
 			if (count % 1000 == 0) {
 				System.out.print(".");
 			}
 			for (Action action : mActionSet.getActions()) {
-				transit(pState, action, pPrevQuality);
+				transit(pState, action);
 			}
 		}
 	}
@@ -167,7 +167,7 @@ public class Environment {
 	/**
 	 * 状態sでアクションaを実行した場合の遷移の処理．
 	 */
-	private void transit(State pState, Action pAction, double pPrevQuality) {
+	private void transit(State pState, Action pAction) {
 		// ゴールに到達するか判定
 		if (isGoal(pState, pAction)) {
 			goal(pState, pAction);
@@ -183,13 +183,13 @@ public class Environment {
 		// アクションに応じて遷移を決定する
 		switch (pAction.getType()) {
 		case CURR:
-			actCurrent(pState, pAction, pPrevQuality);
+			actCurrent(pState, pAction);
 			break;
 		case NEXT:
-			actNext(pState, pAction, pPrevQuality);
+			actNext(pState, pAction);
 			break;
 		case EVAL:
-			actEval(pState, pAction, pPrevQuality);
+			actEval(pState, pAction);
 			break;
 		default:
 			break;
@@ -199,16 +199,17 @@ public class Environment {
 	/**
 	 * 状態pStateでCURRENTアクションを選択した時の処理
 	 */
-	private void actCurrent(State pState, Action pAction, double pPrevQuality) {
+	private void actCurrent(State pState, Action pAction) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			double quality = workerFreq.getKey().solve(mTaskSet.getSubtask(pState.getIndex()), pAction.getWage(),
-					pPrevQuality);
+					pState.getPrevStateQuality());
 			// 品質が高い方を保持
 			quality = (pState.getQuality() > quality) ? pState.getQuality() : quality;
-			State nextState = new State(pState.getIndex(), quality, pState.getBudget() - pAction.getWage());
+			State nextState = new State(pState.getIndex(), quality, pState.getBudget() - pAction.getWage(),
+					pState.getPrevStateQuality());
 
 			// 展開
-			expand(nextState, pPrevQuality);
+			expand(nextState);
 
 			// 状態，状態遷移の追加
 			mSManager.add(nextState);
@@ -220,15 +221,16 @@ public class Environment {
 	/**
 	 * 状態pStateでNEXTアクションを選択した時の処理
 	 */
-	private void actNext(State pState, Action pAction, double pPrevQuality) {
+	private void actNext(State pState, Action pAction) {
 		for (Map.Entry<Worker, Double> workerFreq : mWorkerSet.getWorkersWithFreq().entrySet()) {
 			// 状態作成
 			double quality = workerFreq.getKey().solve(mTaskSet.getSubtask(pState.getIndex() + 1), pAction.getWage(),
 					pState.getQuality());
-			State nextState = new State(pState.getIndex() + 1, quality, pState.getBudget() - pAction.getWage());
+			State nextState = new State(pState.getIndex() + 1, quality, pState.getBudget() - pAction.getWage(),
+					pState.getQuality());
 
 			// 展開
-			expand(nextState, pState.getQuality());
+			expand(nextState);
 
 			// 状態，状態遷移の追加
 			mSManager.add(nextState);
@@ -240,12 +242,12 @@ public class Environment {
 	/**
 	 * 状態pStateでEVALアクションを選択した時の処理
 	 */
-	private void actEval(State pState, Action pAction, double pPrevQuality) {
+	private void actEval(State pState, Action pAction) {
 		State nextState = new State(pState);
 		nextState.decreaseBudget(pAction.getWage());
 
 		// 展開
-		expand(nextState, pPrevQuality);
+		expand(nextState);
 
 		// 状態，状態遷移の追加
 		mSManager.add(nextState);

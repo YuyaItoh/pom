@@ -10,14 +10,16 @@ public class State {
 	private int mIndex;
 	private double mQuality;
 	private int mBudget;
+	private double mPrevStateQuality; // 前サブタスクの品質
 
 	// ======================
 	// Constructors
 	// ======================
-	public State(int pIndex, double pQuality, int pBudget) {
+	public State(int pIndex, double pQuality, int pBudget, double pPrevStateQuality) {
 		mIndex = pIndex;
-		mQuality = Utility.round(pQuality, 2); // 品質は小数点2位
 		mBudget = pBudget;
+		mQuality = Utility.round(pQuality, 2); // 品質は小数点2位
+		mPrevStateQuality = Utility.round(pPrevStateQuality, 2);
 	}
 
 	// コピーの作成
@@ -25,6 +27,7 @@ public class State {
 		mIndex = pState.mIndex;
 		mQuality = pState.mQuality;
 		mBudget = pState.mBudget;
+		mPrevStateQuality = pState.mPrevStateQuality;
 	}
 
 	// ======================
@@ -40,6 +43,10 @@ public class State {
 
 	public int getBudget() {
 		return mBudget;
+	}
+
+	public double getPrevStateQuality() {
+		return mPrevStateQuality;
 	}
 
 	// ======================
@@ -66,6 +73,8 @@ public class State {
 			return false;
 		if (mIndex != other.mIndex)
 			return false;
+		if (Double.doubleToLongBits(mPrevStateQuality) != Double.doubleToLongBits(other.mPrevStateQuality))
+			return false;
 		if (Double.doubleToLongBits(mQuality) != Double.doubleToLongBits(other.mQuality))
 			return false;
 		return true;
@@ -78,6 +87,8 @@ public class State {
 		result = prime * result + mBudget;
 		result = prime * result + mIndex;
 		long temp;
+		temp = Double.doubleToLongBits(mPrevStateQuality);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(mQuality);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
@@ -85,10 +96,10 @@ public class State {
 
 	@Override
 	public String toString() {
-		return "S(" + mIndex + ", " + mQuality + ", " + mBudget + ")";
+		return "S(i:" + mIndex + ", q:" + mQuality + ", b:" + mBudget + ", pq:" + mPrevStateQuality + ")";
 	}
 
 	public String toName() {
-		return Utility.removeDot(String.format("s%d_%.2f_%d", mIndex, mQuality, mBudget));
+		return Utility.removeDot(String.format("s%d_%.2f_%d_%.2f", mIndex, mQuality, mBudget, mPrevStateQuality));
 	}
 }

@@ -241,7 +241,7 @@ public class Main {
 		// ==================
 
 		// -- 設定項目 -----------------------------------------------
-		boolean debug = false;
+		boolean debug = true;
 		boolean simulation = false; // true: simulation, false: pomdp
 		// ----------------------------------------------------------
 

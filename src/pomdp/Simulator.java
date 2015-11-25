@@ -43,7 +43,7 @@ public class Simulator {
 
 		// エージェントの状態把握用の変数
 		mAgent = pAgent;
-		mCurrentState = new State(0, 1.0, mAgent.getBudget());
+		mCurrentState = new State(0, 1.0, mAgent.getBudget(), 1.0);
 		mPrevState = new State(mCurrentState);
 		mPrevSubtaskQuality = mPrevState.getQuality();
 
