@@ -25,7 +25,7 @@ public class Simulator {
 	private List<Result> mResults; // 結果格納
 
 	private State mCurrentState; // 現在状態
-	private State mPrevState; // 前状態
+	private State mPrevState; // 前状態（基本ログ取る用）
 	private double mPrevSubtaskQuality; // 前サブタスクの品質
 
 	private boolean mIsEnd; // シミュレーション終了判定フラグ
@@ -129,7 +129,7 @@ public class Simulator {
 
 		// 状態の更新
 		mPrevState = mCurrentState;
-		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainingBudget() - pWage);
+		mCurrentState = new State(mCurrentState.getIndex(), quality, mAgent.getRemainingBudget());
 
 		return Observation.NONE;
 	}
@@ -139,7 +139,7 @@ public class Simulator {
 	 */
 	private double execNextAction(Worker pWorker, int pWage) {
 		Subtask subtask = mTaskSet.getSubtask(mCurrentState.getIndex() + 1);
-		double quality = pWorker.solve(subtask, pWage, mPrevSubtaskQuality);
+		double quality = pWorker.solve(subtask, pWage, mCurrentState.getQuality());
 
 		// 状態の更新
 		mPrevState = mCurrentState;
@@ -196,13 +196,13 @@ public class Simulator {
 		// -----------------------------
 		// 無効な行動とは以下の場合
 		// 1. 賃金が負の行動
-		// 2. 予算を上回る賃金
+		// 2. アクションによる残り予算が負
 		// 3. 最終タスクでNEXTアクション
 		// -----------------------------
 		if (pAction.getWage() <= 0) {
 			return false;
 		}
-		if (mAgent.getRemainingBudget() - pAction.getWage() < 0) {
+		if (mAgent.getRemainingBudget() < 0) {
 			return false;
 		}
 		if (mCurrentState.getIndex() == mTaskSet.getSubtaskNum() && pAction.getType() == ActionType.NEXT) {
