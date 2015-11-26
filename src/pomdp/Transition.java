@@ -21,6 +21,7 @@ public class Transition {
 	private double mReward; // 報酬は小数点1位まで
 
 	private final double PENALTY = -1000.0;
+	private final double THRESHOLD = 0.6; // 最低保証品質
 
 	// =====================
 	// Constructors
@@ -44,6 +45,12 @@ public class Transition {
 	 * 品質とTransitionTypeから報酬を作成
 	 */
 	public double calcReward(TransitionType pType, double pQuality) {
+		// FIXME:
+		// 品質関数が悪いため期待した方策にならない（常にNEXTになる）
+		// 修正することで最適方策が出るようにすること
+		// 具体的には品質の差による報酬の差が大きくできるようにする
+		// シグモイド的なやつか，ステップ関数でも良い
+
 		// *********************
 		// TRANSITIONなら0
 		// BUNKRUPTならPENALTY
@@ -58,13 +65,19 @@ public class Transition {
 			reward = PENALTY;
 			break;
 		case GOAL:
-			reward = 1000 * ((Math.pow(Math.E, pQuality) - 1) / (Math.E - 1));
+			// FIXME 暫定的に品質がTHRESHOLD未満の報酬は0
+			if (pQuality < THRESHOLD) {
+				reward = 0.0;
+			} else {
+				reward = 1000 * ((Math.pow(Math.E, pQuality) - 1) / (Math.E - 1));
+			}
 			break;
 		default:
 			reward = 0.0;
 		}
 
 		return reward;
+
 	}
 
 	// =====================
