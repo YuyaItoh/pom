@@ -56,6 +56,10 @@ public class Main {
 		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
 		environment.build();
 
+		// FIXME: ワーカキューファイル，resultファイルを環境ファイルと同ディレクトリに出力
+		File pEnvFile = new File(pEnvironmentPath);
+		String parent = (pEnvFile.getParent() == null) ? "." : pEnvFile.getParent();
+
 		String currentTimeString = getCurrentTime();
 
 		// =====================
@@ -64,7 +68,7 @@ public class Main {
 		if (pQueuePath == null) {
 			// 待ち行列ファイルの作成（および書込み）
 			environment.createWorkerQueue();
-			environment.writeWorkerQueue("queue_" + currentTimeString + ".conf");
+			environment.writeWorkerQueue(parent + "/queue_" + currentTimeString + ".conf");
 		} else {
 			// 待ち行列ファイルの読込み
 			environment.readWorkerQueue(pQueuePath); // 読込
@@ -92,7 +96,7 @@ public class Main {
 		// シミュレーションの実行
 		// =====================
 		System.out.println("simulating...");
-		String outputPath = getPreffix(new File(pEnvironmentPath).getName()) + "_" + pAgentType + "_"
+		String outputPath = parent + "/" + getPreffix(new File(pEnvironmentPath).getName()) + "_" + pAgentType + "_"
 				+ currentTimeString + ".result";
 		Simulator sim = new Simulator(environment, agent);
 		sim.run(outputPath);
@@ -243,8 +247,8 @@ public class Main {
 		// ==================
 
 		// -- 設定項目 -----------------------------------------------
-		boolean debug = false;
-		boolean simulation = false; // true: simulation, false: pomdp
+		boolean debug = true;
+		boolean simulation = true; // true: simulation, false: pomdp
 		// ----------------------------------------------------------
 
 		if (cl.hasOption("debug") || debug) {
@@ -255,7 +259,7 @@ public class Main {
 			if (simulation) {
 				// シミュレーションのデバッグ
 				// (env, agent, queue, pomdp, policy, iteration)
-				m.execSimulation("test.environment", "pomdp", "queue.conf", "test.pomdp", "test.policy.json", 5);
+				m.execSimulation("data/min.environment", "equal", null, "data/min.pomdp", "data/min.policy.json", 5);
 			} else {
 				// POMDPファイル作成のデバッグ
 				m.execPomdp("test.environment");
