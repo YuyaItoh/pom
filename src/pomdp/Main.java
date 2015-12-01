@@ -233,6 +233,8 @@ public class Main {
 			System.out.println("cmd -m pomdp -e test.environment ");
 			System.out.println(
 					"cmd -m simulation --environment test.environment --agent pomdp --pomdp test.pomdp --policy test.policy --queue queue.conf");
+			System.out.println(
+					"cmd -m simulation --envitonment test.environment --agent equal --iteration 3 --queue queue.conf");
 			return;
 		}
 
