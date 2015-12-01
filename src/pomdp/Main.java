@@ -23,17 +23,25 @@ public class Main {
 	/**
 	 * POMDPファイル作成
 	 */
-	public void execPomdp(String pInputPath) {
+	public void execPomdp(String pEnvironmentPath) {
+		// ==========================
+		// エラーチェック
+		// ==========================
+		if (pEnvironmentPath == null) {
+			System.out.println("No Environment File");
+			System.exit(0);
+		}
+
 		System.out.println("=======================");
 		System.out.println("Exec Pomdp Writing");
 		System.out.println("=======================");
 
 		// 環境構築
-		Environment env = EnvironmentInitializer.generate(pInputPath);
+		Environment env = EnvironmentInitializer.generate(pEnvironmentPath);
 		env.build();
 
 		// 出力
-		String outputPath = makePomdpFileName(pInputPath);
+		String outputPath = makePomdpFileName(pEnvironmentPath);
 		env.writePomdp(outputPath, 0);
 	}
 
@@ -46,17 +54,53 @@ public class Main {
 	}
 
 	/**
+	 * ワーカキューファイルを作成し，保存する
+	 */
+	public void makeQueue(String pEnvironmentPath, String pQueueFileName) {
+		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
+		environment.createWorkerQueue();
+		environment.writeWorkerQueue(pQueueFileName);
+	}
+
+	/**
 	 * シミュレーションを1回実行する
 	 */
 	public void execSimulation(String pEnvironmentPath, String pAgentType, String pQueuePath, String pPomdpPath,
 			String pPolicyPath, int pIterationNum) {
+		// =====================
+		// エラーチェック
+		// =====================
+		if (pEnvironmentPath == null) {
+			System.out.println("No Environment File");
+			System.exit(0);
+		}
+		if (pQueuePath == null) {
+			System.out.println("No Worker Queue File");
+			System.exit(0);
+		}
+
+		if (pAgentType.equals("pomdp")) {
+			if (pPolicyPath == null) {
+				System.out.println("No Policy File");
+				System.exit(0);
+			}
+			if (pPomdpPath == null) {
+				System.out.println("No Pomdp File");
+				System.exit(0);
+			}
+		} else {
+			if (pIterationNum <= 0) {
+				System.out.println("Iteration is more than 0");
+				System.exit(0);
+			}
+		}
+
 		// =====================
 		// 環境構築
 		// =====================
 		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
 		environment.build();
 
-		// FIXME: ワーカキューファイル，resultファイルを環境ファイルと同ディレクトリに出力
 		File pEnvFile = new File(pEnvironmentPath);
 		String parent = (pEnvFile.getParent() == null) ? "." : pEnvFile.getParent();
 
@@ -65,14 +109,7 @@ public class Main {
 		// =====================
 		// ワーカキューの設定
 		// =====================
-		if (pQueuePath == null) {
-			// 待ち行列ファイルの作成（および書込み）
-			environment.createWorkerQueue();
-			environment.writeWorkerQueue(parent + "/queue_" + currentTimeString + ".conf");
-		} else {
-			// 待ち行列ファイルの読込み
-			environment.readWorkerQueue(pQueuePath); // 読込
-		}
+		environment.readWorkerQueue(pQueuePath); // 読込
 
 		// =====================
 		// エージェントの設定
@@ -96,6 +133,7 @@ public class Main {
 		// シミュレーションの実行
 		// =====================
 		System.out.println("simulating...");
+		// FIXME: resultファイルの名前をワーカキューファイルに関連付けて設定すること
 		String outputPath = parent + "/" + getPreffix(new File(pEnvironmentPath).getName()) + "_" + pAgentType + "_"
 				+ currentTimeString + ".result";
 		Simulator sim = new Simulator(environment, agent);
@@ -178,7 +216,7 @@ public class Main {
 		Options options = new Options();
 
 		// 各モード共通
-		options.addOption("m", "mode", true, "execution mode(pomdp, mdp, simulation)");
+		options.addOption("m", "mode", true, "execution mode(pomdp, mdp, simulation, queue)");
 		options.addOption("e", "environment", true, "envieonment file(***.environment)");
 		options.addOption("h", "help", false, "help");
 		options.addOption("d", "debug", false, "debug mode");
@@ -235,6 +273,7 @@ public class Main {
 
 			System.out.println("\nExample");
 			System.out.println("cmd -m pomdp -e test.environment ");
+			System.out.println("cmd -m queue -e test.environment -q queue.conf");
 			System.out.println(
 					"cmd -m simulation --environment test.environment --agent pomdp --pomdp test.pomdp --policy test.policy --queue queue.conf");
 			System.out.println(
@@ -284,6 +323,9 @@ public class Main {
 			break;
 		case "simulation":
 			m.execSimulation(environmentPath, agentType, queuePath, pomdpPath, policyPath, iterationNum);
+			break;
+		case "queue":
+			m.makeQueue(environmentPath, queuePath);
 			break;
 		default:
 			System.out.println("Undefined Execution Mode --" + mode);
