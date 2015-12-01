@@ -1,8 +1,6 @@
 package pomdp;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,11 +99,6 @@ public class Main {
 		Environment environment = EnvironmentInitializer.generate(pEnvironmentPath);
 		environment.build();
 
-		File pEnvFile = new File(pEnvironmentPath);
-		String parent = (pEnvFile.getParent() == null) ? "." : pEnvFile.getParent();
-
-		String currentTimeString = getCurrentTime();
-
 		// =====================
 		// ワーカキューの設定
 		// =====================
@@ -134,10 +127,9 @@ public class Main {
 		// =====================
 		System.out.println("simulating...");
 		// FIXME: resultファイルの名前をワーカキューファイルに関連付けて設定すること
-		String outputPath = parent + "/" + getPreffix(new File(pEnvironmentPath).getName()) + "_" + pAgentType + "_"
-				+ currentTimeString + ".result";
+		String resultPath = makeResultPath(pEnvironmentPath, pAgentType, pQueuePath);
 		Simulator sim = new Simulator(environment, agent);
-		sim.run(outputPath);
+		sim.run(resultPath);
 		System.out.println("finished");
 	}
 
@@ -146,12 +138,13 @@ public class Main {
 	// =========================
 
 	/**
-	 * 現在時刻を"MMdd_HHmmss"の形で取得
+	 * resultファイル名の作成(project_agent_queue.result)
 	 */
-	private String getCurrentTime() {
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("MMdd_HHmmss");
-		return sdf.format(date);
+	private String makeResultPath(String pEnvironmentPath, String pAgentType, String pQueuePath) {
+		String project = getPreffix(new File(pEnvironmentPath).getName());
+		String agent = pAgentType;
+		String queue = getPreffix(new File(pQueuePath).getName());
+		return project + "_" + agent + "_" + queue + ".result";
 	}
 
 	/**
@@ -287,7 +280,13 @@ public class Main {
 
 		// -- 設定項目 -----------------------------------------------
 		boolean debug = false;
-		boolean simulation = true; // true: simulation, false: pomdp
+		String dMode = "simulation"; // pomdp, queue, simulation
+		String dEnv = "data/test/test.environment"; // 環境
+		String dAgent = "equal"; // equal, dif, pomdp
+		String dPomdp = "data/test/test.pomdp"; // POMDPファイル
+		String dPolicy = "data/test/test.policy.json"; // POLICYファイル
+		String dQueue = "data/test/queue.conf"; // ワーカキューファイル
+		int dIteration = 2;
 		// ----------------------------------------------------------
 
 		if (cl.hasOption("debug") || debug) {
@@ -295,19 +294,22 @@ public class Main {
 			System.out.println("  WARNING: Debug Mode    ");
 			System.out.println("=========================");
 
-			if (simulation) {
-				// シミュレーションのデバッグ
+			switch (dMode) {
+			case "pomdp":
+				m.execPomdp(dEnv);
+				break;
+			case "simulation":
 				// (env, agent, queue, pomdp, policy, iteration)
-				m.execSimulation("data/min.environment", "equal", null, "data/min.pomdp", "data/min.policy.json", 5);
-			} else {
-				// POMDPファイル作成のデバッグ
-				m.execPomdp("test.environment");
+				m.execSimulation(dEnv, dAgent, dQueue, dPomdp, dPolicy, dIteration);
+				break;
+			case "queue":
+				m.makeQueue(dEnv, dQueue);
+				break;
+			default:
+				break;
 			}
 
-			System.out.println("\n\t\t *END*");
-			long end = System.currentTimeMillis();
-			double time_second = (end - start) / 1000.0;
-			System.out.println("time: " + time_second + "s.\n");
+			System.out.println("END");
 			return;
 		}
 
@@ -337,6 +339,7 @@ public class Main {
 		// 計測終了
 		// ==================
 		System.out.println("\n\t\t *END*");
+
 		long end = System.currentTimeMillis();
 		double time_second = (end - start) / 1000.0;
 		System.out.println("time: " + time_second + "s.\n");
