@@ -38,4 +38,3 @@ target
 *.environment
 *.result
 *.json
-*.rb
