@@ -140,7 +140,7 @@ public class Main {
 	 * resultファイル名の作成(project_agent_iter_queue.result)
 	 */
 	private String makeResultPath(String pEnvironmentPath, String pAgentType, String pQueuePath, int pIterationNum) {
-		String iter = (pAgentType.equals("pomdp")) ? "iter" + pIterationNum + "_" : "";
+		String iter = (pAgentType.equals("pomdp")) ? "" : "iter" + pIterationNum + "_";
 		String project = getPreffix(new File(pEnvironmentPath).getName());
 		String agent = pAgentType;
 		String queue = getPreffix(new File(pQueuePath).getName());
