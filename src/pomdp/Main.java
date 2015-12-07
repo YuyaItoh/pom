@@ -126,8 +126,7 @@ public class Main {
 		// シミュレーションの実行
 		// =====================
 		System.out.println("simulating...");
-		// FIXME: resultファイルの名前をワーカキューファイルに関連付けて設定すること
-		String resultPath = makeResultPath(pEnvironmentPath, pAgentType, pQueuePath);
+		String resultPath = makeResultPath(pEnvironmentPath, pAgentType, pQueuePath, pIterationNum);
 		Simulator sim = new Simulator(environment, agent);
 		sim.run(resultPath);
 		System.out.println("finished");
@@ -138,13 +137,14 @@ public class Main {
 	// =========================
 
 	/**
-	 * resultファイル名の作成(project_agent_queue.result)
+	 * resultファイル名の作成(project_agent_iter_queue.result)
 	 */
-	private String makeResultPath(String pEnvironmentPath, String pAgentType, String pQueuePath) {
+	private String makeResultPath(String pEnvironmentPath, String pAgentType, String pQueuePath, int pIterationNum) {
+		String iter = (pAgentType.equals("pomdp")) ? "iter" + pIterationNum + "_" : "";
 		String project = getPreffix(new File(pEnvironmentPath).getName());
 		String agent = pAgentType;
 		String queue = getPreffix(new File(pQueuePath).getName());
-		return project + "_" + agent + "_" + queue + ".result";
+		return project + "_" + agent + "_" + iter + queue + ".result";
 	}
 
 	/**
