@@ -14,7 +14,7 @@ cat <<EOT
 # $3: Dif, Equalエージェントにおけるタスクの反復数
 # 
 # [使用例]
-# + env1.environmentのシミュレーション
+# + test.environmentのシミュレーション
 # + シミュレーション回数は5
 # + HITsの反復数は3
 # simulate test.environment 5 3
