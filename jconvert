@@ -1,0 +1,2 @@
+#!/bin/sh
+ruby policy_to_json.rb $* 
