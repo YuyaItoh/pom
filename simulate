@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# ヘルプ
+if [[ ${1} = "-h" ]]; then
+cat <<EOT
+# ==============================================================
+# それぞれのエージェントでシミュレーションを実行するスクリプト
+# runコマンドのパスが通っていることが前提
+# runコマンドはJavaのプロジェクトディレクトリに格納
+#
+# [引数]
+# $1: 環境ファイル名
+# $2: シミュレーションの回数
+# $3: Dif, Equalエージェントにおけるタスクの反復数
+# 
+# [使用例]
+# + env1.environmentのシミュレーション
+# + シミュレーション回数は5
+# + HITsの反復数は3
+# simulate test.environment 5 3
+# ==============================================================
+EOT
+exit 1
+fi
+
+
+# 環境ファイルからbasenameとdirnameを取得
+basename=`basename $1 .environment`
+dirname=`dirname $1`
+
+# コマンドライン引数の処理
+sim_num=$2
+iteration=$3
+
+# 環境ファイル，policyファイル，pomdpファイルの準備
+environment=${dirname}/${basename}.environment
+policy=${dirname}/${basename}.policy.json
+pomdp=${dirname}/${basename}.pomdp
+
+# シミュレーションの実行
+a=0
+while [ $a -ne ${sim_num} ]
+do
+    echo "== [START] ${a}th simulation"
+    a=`expr $a + 1`
+
+    # Queue.confの作成と実行
+    queue=${dirname}/queue${a}.conf
+    run -m queue -e ${environment} -q ${queue}
+
+    # Equalシミュレーション
+    run -m simulation --environment ${environment} --agent equal --iteration ${iteration} --queue ${queue}
+
+    # Difシミュレーション
+    run -m simulation --environment ${environment} --agent dif --iteration ${iteration} --queue ${queue}
+
+    # Pomdpシミュレーション
+    run -m simulation --environment ${environment} --agent pomdp --pomdp ${pomdp} --policy ${policy} --queue ${queue}
+
+    echo "== [END] ${a}th simulation"
+done
