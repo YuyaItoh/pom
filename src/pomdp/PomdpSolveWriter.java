@@ -12,7 +12,7 @@ public class PomdpSolveWriter {
 	// ===============
 	// Fields
 	// ===============
-	private final double DISCOUNT = 0.99;
+	private final double DISCOUNT = 0.93;
 	private static PomdpSolveWriter mInstance;
 	private Environment mEnv;
 
