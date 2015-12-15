@@ -152,22 +152,24 @@ public class PomdpAgent extends Agent {
 
 		// 新しい信念ベクトル
 		double updatedBelief[] = new double[mBelief.length];
-
 		// 正規化用の確率和(k)
 		double probSum = 0.0;
 
 		// 信念b(i)を計算
+		// FIXME: 信念ベクトルの大きさ（＝状態数）の2乗のオーダーになるのでlet's 枝刈り
 		for (int after = 0; after < mBelief.length; after++) {
-			double reachProb = 0.0; // 状態s'への到達可能性，Σ_s T(s, a, s')b(s)
+			double reachProb = 0.0; // 状態s'への到達確率，Σ_s P(s'|s,a)b(s)
 			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[after],
-					pObservation); // 観測oの取得可能性，P(o'|s',a)
+					pObservation); // oの観測可能性，P(o'|s',a)
 
-			// 到達確率Σ_s P(s'|s,a)b(s)の計算
-			for (int before = 0; before < mBelief.length; before++) {
-				reachProb += mEnv.getTManager().getProbability(mStates[before], mPrevAction, mStates[after])
-						* mBelief[before];
+			// 観測確率が0の場合は積が0になるので到達確率の計算不要
+			if (observeProb != 0) {
+				// 到達確率Σ_s P(s'|s,a)b(s)の計算
+				for (int before = 0; before < mBelief.length; before++) {
+					reachProb += mEnv.getTManager().getProbability(mStates[before], mPrevAction, mStates[after])
+							* mBelief[before];
+				}
 			}
-
 			// 状態iの信念
 			updatedBelief[after] = observeProb * reachProb;
 			probSum += updatedBelief[after];
