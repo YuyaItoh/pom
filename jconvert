@@ -1,2 +1,2 @@
 #!/bin/sh
-ruby src/policy_to_json.rb $* 
+ruby $POM/src/policy_to_json.rb $* 
