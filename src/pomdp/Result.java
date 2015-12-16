@@ -51,7 +51,7 @@ public class Result {
 	}
 
 	/**
-	 * CSV形式で出力する
+	 * CSV形式で出力する出力形式はindex, worker_ability, wage, quality, budgetの順
 	 */
 	public String toCsv() {
 		String str = "";

@@ -1,2 +1,20 @@
 #!/bin/sh
+
+# ヘルプ
+if [[ ${1} = "-h" ]]; then
+cat <<EOT
+# ==============================================================
+# zmdpで出力したハッシュ形式のファイルを読み込み，
+# それをjsonとして吐き出す
+# 
+# 第1引数: policyファイル（xxx.policy）
+# 第2引数: pomdpファイル(xxx.pomdp)
+# 
+#  jconvert test.policy test.pomdp
+# ==============================================================
+EOT
+exit 1
+fi
+
+
 ruby $POM/src/policy_to_json.rb $* 

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 #（*.conf, *_result.csv）を削除
-rm queue*.conf *_result.csv 2> /dev/null
+rm queue*.conf *_result.csv *_result.txt 2> /dev/null

@@ -108,8 +108,9 @@ public class Simulator {
 			round++;
 		} while (!mIsEnd);
 
-		// 結果の出力
-		writeResult(output);
+		// 結果の出力をplain textとcsvで出力する
+		writeResultPlain(output);
+		writeResultCsv(output);
 	}
 
 	// =======================
@@ -164,10 +165,11 @@ public class Simulator {
 	}
 
 	/**
-	 * シミュレーション結果の出力
+	 * シミュレーション結果をPlainTextで出力
 	 */
-	private void writeResult(String output) {
+	private void writeResultPlain(String pOutput) {
 		try {
+			String output = pOutput + ".txt";
 			File file = new File(output);
 			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
 
@@ -176,6 +178,26 @@ public class Simulator {
 
 			// シミュレーション結果を出力
 			pw.println("# Agent: " + mAgent.getClass().toString() + "\n");
+			for (Result res : mResults) {
+				pw.println(res.toString());
+			}
+			pw.close();
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+	}
+
+	/**
+	 * シミュレーション結果をCSV形式で出力
+	 */
+	private void writeResultCsv(String pOutput) {
+		try {
+			String output = pOutput + ".csv";
+			File file = new File(output);
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+
+			// フォーマットは<index>, <worker>, <wage>, <quality>, <budget>
+			pw.println("<index>, <worker>, <wage>, <quality>, <budget>");
 			for (Result res : mResults) {
 				pw.println(res.toCsv());
 			}
