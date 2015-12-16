@@ -62,7 +62,7 @@ fi
 # xxx.policy.jsonが存在しない場合は作成
 if [[ ! -f $policy_json ]]; then
   echo "[NOTIFICATION policy.jsonが無いので作成します" >&2
-  jconvert $policy
+  jconvert $policy $pomdp
 fi
 
 
