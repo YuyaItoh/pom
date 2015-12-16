@@ -141,6 +141,10 @@ public class PomdpAgent extends Agent {
 
 	@Override
 	public Action selectAction() {
+		// ***********************************************
+		// * FIXME: 最適方策の取得に間違いがないかチェック *
+		// ***********************************************
+
 		// 価値関数が最大になるようなPlaneを取得
 		Plane maxPlane = null; // 最適平面
 		double maxVal = 0.0; // 最大価値
@@ -201,6 +205,10 @@ public class PomdpAgent extends Agent {
 	 * 行動と観測値をもとに信念状態を更新する
 	 */
 	private void updateBelief(Action pAction, double pObservation) {
+		// ***********************************************************************
+		// * FIXME: 信念の更新が上手くいっていない可能性あり．間違いがないかチェック *
+		// ***********************************************************************
+
 		System.out.print("updating...");
 		// **********************************************************
 		// 信念状態の更新式は以下のように表される
@@ -218,7 +226,6 @@ public class PomdpAgent extends Agent {
 		double probSum = 0.0;
 
 		// 信念b(i)を計算
-		// FIXME: 信念ベクトルの大きさ（＝状態数）の2乗のオーダーになるのでlet's 枝刈り
 		for (int after = 0; after < mBelief.length; after++) {
 			double reachProb = 0.0; // 状態s'への到達確率，Σ_s P(s'|s,a)b(s)
 			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[after],
