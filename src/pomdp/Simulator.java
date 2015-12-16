@@ -102,7 +102,6 @@ public class Simulator {
 				mIsEnd = true;
 			}
 
-			res.toString();
 			mResults.add(res);
 
 			System.out.println("[END: round" + round + "]");
@@ -176,12 +175,10 @@ public class Simulator {
 			pw.println(mEnv.toString());
 
 			// シミュレーション結果を出力
-			pw.println("= = = = = = = = = = = = = = = = ");
-			pw.println("Agent: " + mAgent.getClass().toString() + "\n");
+			pw.println("# Agent: " + mAgent.getClass().toString() + "\n");
 			for (Result res : mResults) {
-				pw.println(res.toString());
+				pw.println(res.toCsv());
 			}
-			pw.println("= = = = = = = = = = = = = = = = ");
 			pw.close();
 		} catch (IOException e) {
 			System.out.println(e);

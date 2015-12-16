@@ -50,4 +50,15 @@ public class Result {
 		return str;
 	}
 
+	/**
+	 * CSV形式で出力する
+	 */
+	public String toCsv() {
+		String str = "";
+		if (!mIsEnd) {
+			str += String.format("%d, %.1f, %d, %.2f, %d", mNextState.getIndex(), mWorker.getAbility(),
+					mAction.getWage(), mNextState.getQuality(), mNextState.getBudget());
+		}
+		return str;
+	}
 }
