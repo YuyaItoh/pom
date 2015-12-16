@@ -20,8 +20,8 @@ public class Transition {
 	private TransitionType mType;
 	private double mReward; // 報酬は小数点1位まで
 
-	private final double PENALTY = -1000.0;
-	private final double THRESHOLD = 0.6; // 最低保証品質
+	private final double PENALTY = -100.0; // FIXME: 予算切れによるペナルティの妥当性
+	private final double THRESHOLD = 0.5; // FIXME: 最低保証品質の妥当性
 
 	// =====================
 	// Constructors
@@ -46,7 +46,7 @@ public class Transition {
 	 */
 	public double calcReward(TransitionType pType, double pQuality) {
 		// FIXME:
-		// 品質関数が悪いため期待した方策にならない（常にNEXTになる）
+		// CURRやEVALがあまり出なく，予算が余る
 		// 修正することで最適方策が出るようにすること
 		// 具体的には品質の差による報酬の差が大きくできるようにする
 		// シグモイド的なやつか，ステップ関数でも良い

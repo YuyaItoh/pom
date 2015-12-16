@@ -23,6 +23,9 @@ EOT
 exit 1
 fi
 
+# 
+# Preparation --------------------------------------------------
+# 
 
 # 環境ファイルからbasenameとdirnameを取得
 basename=`basename $1 .environment`
@@ -34,8 +37,38 @@ iteration=$3
 
 # 環境ファイル，policyファイル，pomdpファイルの準備
 environment=${dirname}/${basename}.environment
-policy=${dirname}/${basename}.policy.json
+policy=${dirname}/${basename}.policy
+policy_json=${policy}.json
 pomdp=${dirname}/${basename}.pomdp
+
+
+
+# 
+# Error Handling -----------------------------------------------
+# 
+
+# pomdpファイルを未作成の場合
+if [[ ! -f $pomdp ]]; then
+    echo "[ERROR] POMDPファイルがありません．作成してください" >&2
+    exit 1
+fi
+
+# zmdpを未実行の場合
+if [[ ! -f $policy ]]; then
+    echo "[ERROR] Policyファイルがありません．zmdpで作成してください" >&2
+    exit 1
+fi
+
+# xxx.policy.jsonが存在しない場合は作成
+if [[ ! -f $policy_json ]]; then
+  echo "[NOTIFICATION policy.jsonが無いので作成します" >&2
+  jconvert $policy
+fi
+
+
+# 
+# Simulation ---------------------------------------------------
+# 
 
 # シミュレーションの実行
 a=0
@@ -55,7 +88,7 @@ do
     run -m simulation --environment ${environment} --agent dif --iteration ${iteration} --queue ${queue}
 
     # Pomdpシミュレーション
-    run -m simulation --environment ${environment} --agent pomdp --pomdp ${pomdp} --policy ${policy} --queue ${queue}
+    run -m simulation --environment ${environment} --agent pomdp --pomdp ${pomdp} --policy ${policy_json} --queue ${queue}
 
     echo "== [END] ${a}th simulation"
 done
