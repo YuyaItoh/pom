@@ -39,3 +39,4 @@ target
 *.result
 *.json
 *.org
+data/
