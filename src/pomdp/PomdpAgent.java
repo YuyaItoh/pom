@@ -1,6 +1,8 @@
 package pomdp;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -30,23 +32,83 @@ public class PomdpAgent extends Agent {
 
 		initPomdp(pPomdpPath);
 		initPolicy(pPolicyPath);
+		initBelief();
 	}
 
 	/**
-	 * Policyファイルを読込み方策を取得する
+	 * Policyファイルを読込み方策を取得する．フォーマットはTreyのタイプ(xxx.policy)とCassandraのタイプ(xxx.
+	 * alpha) の2種類
 	 */
 	private void initPolicy(String pPolicyPath) {
+		if (pPolicyPath.contains(".policy")) {
+			initTreyPolicy(pPolicyPath);
+		} else if (pPolicyPath.contains(".alpha")) {
+			initCassandraPolicy(pPolicyPath);
+		} else {
+			System.out.println("unknown extension of policy file --" + pPolicyPath);
+		}
+	}
+
+	/**
+	 * Treyのpolicyフォーマット(xxx.policy)を読み込み初期化
+	 */
+	private void initTreyPolicy(String pPolicyPath) {
 		Gson gson = new Gson();
 		try {
 			JsonReader reader = new JsonReader(new BufferedReader(new FileReader(pPolicyPath)));
 			mPolicy = gson.fromJson(reader, Policy.class);
-
-			// 信念の初期化
-			initBelief();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
 
+	/**
+	 * Cassandraのpolicyフォーマット(xxx.alpha)を読み込み初期化
+	 */
+	private void initCassandraPolicy(String pPolicyPath) {
+		// CassandraのファイルをPolicyクラスに当てはめる
+		mPolicy = new Policy();
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader((new File(pPolicyPath))));
+			String str;
+
+			while ((str = br.readLine()) != null) {
+				// コメントアウト，空行の無視
+				if (str.length() == 0 || str.charAt(0) == '#') {
+					continue;
+				}
+
+				// 1行目: アクション
+				int action = Integer.parseInt(str);
+				str = br.readLine();
+
+				// 2行目: ベクトル（空白区切り）
+				// 空白区切りで要素を取得し，doubleに変換
+				String entriesStr[] = str.split(" ");
+				double entries[] = new double[entriesStr.length];
+				for (int i = 0; i < entriesStr.length; i++) {
+					entries[i] = Double.parseDouble(entriesStr[i]);
+				}
+
+				// Planeを作成し，Policyに追加
+				mPolicy.add(new Plane(action, entries));
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println(e);
+		} catch (IOException e) {
+			System.out.println(e);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**

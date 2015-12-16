@@ -1,5 +1,6 @@
 package pomdp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +21,9 @@ public class Policy {
 	// ============
 	// Constructors
 	// ============
+	public Policy() {
+		planes = new ArrayList<Plane>();
+	}
 
 	// ============
 	// Methods
@@ -27,5 +31,12 @@ public class Policy {
 	@Override
 	public String toString() {
 		return "Policy[policyType=" + policyType + ", numPlanes=" + numPlanes + ", planes=\n" + planes + "\n]\n";
+	}
+
+	/**
+	 * 平面の追加
+	 */
+	public void add(Plane pPlane) {
+		this.planes.add(pPlane);
 	}
 }

@@ -16,6 +16,10 @@ public class Plane {
 	// ==============
 	// Constructors
 	// ==============
+	public Plane(int pAction, double[] pEntries) {
+		action = pAction;
+		entries = pEntries;
+	}
 
 	// ===============
 	// Methods

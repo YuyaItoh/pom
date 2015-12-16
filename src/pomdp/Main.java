@@ -284,7 +284,7 @@ public class Main {
 		String dEnv = "data/test/test.environment"; // 環境
 		String dAgent = "pomdp"; // equal, dif, pomdp
 		String dPomdp = "data/test/test.pomdp"; // POMDPファイル
-		String dPolicy = "data/test/test.policy.json"; // POLICYファイル
+		String dPolicy = "data/test/test.alpha"; // POLICYファイル
 		String dQueue = "data/test/queue1.conf"; // ワーカキューファイル
 		int dIteration = 2;
 		// ----------------------------------------------------------
