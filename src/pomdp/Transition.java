@@ -21,7 +21,8 @@ public class Transition {
 	private double mReward; // 報酬は小数点1位まで
 
 	private final double PENALTY = -100.0; // FIXME: 予算切れによるペナルティの妥当性
-	private final double THRESHOLD = 0.6; // FIXME: 最低保証品質の妥当性
+	private final double THRESHOLD = 0.5; // FIXME: 最低保証品質の妥当性
+	private final int REMAINED_MAX_BUDGET = 5; // 予算が5以上だとゴールしても報酬を得られない
 
 	// =====================
 	// Constructors
@@ -45,11 +46,7 @@ public class Transition {
 	 * 品質とTransitionTypeから報酬を作成
 	 */
 	public double calcReward(TransitionType pType, double pQuality) {
-		// FIXME:
-		// CURRやEVALがあまり出なく，予算が余る
-		// 修正することで最適方策が出るようにすること
-		// 具体的には品質の差による報酬の差が大きくできるようにする
-		// シグモイド的なやつか，ステップ関数でも良い
+		// TODO: より良い品質関数の作成
 
 		// *********************
 		// TRANSITIONなら0
@@ -65,8 +62,9 @@ public class Transition {
 			reward = PENALTY;
 			break;
 		case GOAL:
-			// FIXME 暫定的に品質がTHRESHOLD未満の報酬は0
-			if (pQuality < THRESHOLD) {
+			// 品質がTHRESHOLD未満の報酬は0
+			// 予算が多く残った状態でゴールしても報酬は0
+			if (pQuality < THRESHOLD || mPrevState.getBudget() >= REMAINED_MAX_BUDGET) {
 				reward = 0.0;
 			} else {
 				reward = 1000 * ((Math.pow(Math.E, pQuality) - 1) / (Math.E - 1));

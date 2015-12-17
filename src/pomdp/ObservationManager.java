@@ -14,7 +14,7 @@ public class ObservationManager {
 	// =========================
 	// Fields
 	// =========================
-	public static final double VAR = 0.01; // TODO: いい感じの分散の決定
+	public static final double VAR = 0.01; // TODO: 妥当な分散の決定
 	private Map<Observation, Double> mObservations;
 	private List<Double> mEvaluations; // ワーカの評価値
 
