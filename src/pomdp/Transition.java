@@ -22,7 +22,7 @@ public class Transition {
 
 	private final double PENALTY = -100.0; // FIXME: 予算切れによるペナルティの妥当性
 	private final double THRESHOLD = 0.5; // FIXME: 最低保証品質の妥当性
-	private final int REMAINED_MAX_BUDGET = 5; // 予算が5以上だとゴールしても報酬を得られない
+	private final int REMAINING_MAX_BUDGET = 5; // 予算が5以上だとゴールしても報酬を得られない
 
 	// =====================
 	// Constructors
@@ -64,7 +64,7 @@ public class Transition {
 		case GOAL:
 			// 品質がTHRESHOLD未満の報酬は0
 			// 予算が多く残った状態でゴールしても報酬は0
-			if (pQuality < THRESHOLD || mPrevState.getBudget() >= REMAINED_MAX_BUDGET) {
+			if (pQuality < THRESHOLD || mPrevState.getBudget() >= REMAINING_MAX_BUDGET) {
 				reward = 0.0;
 			} else {
 				reward = 1000 * ((Math.pow(Math.E, pQuality) - 1) / (Math.E - 1));
