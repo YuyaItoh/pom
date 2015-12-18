@@ -1,0 +1,109 @@
+#!/bin/sh
+
+# 
+# help --------------------------------------------------------------
+# 
+if [[ ${1} = "-h" ]]; then
+cat <<EOT
+# ==============================================================
+# POMDPの構築，zmdpによる計算，シミュレーションまでを全て行う．
+# zmdp終了時およびシミュレーション終了時にメールを送る
+#
+# --------------------------------------------------------------
+# 注意: メールを送るためには，事前にアドレスとパスワードを
+#       環境変数に設定しておくこと（$ADDRESS, $PASSWD）
+# --------------------------------------------------------------
+# 
+# [引数]
+# $1: 環境ファイル名
+# $2: シミュレーションの回数
+# $3: Dif, Equalエージェントにおけるタスクの反復数
+# 
+# [使用例]
+# + test.environmentのシミュレーション
+# + シミュレーション回数は5
+# + HITsの反復数は3
+# all test.environment 5 3
+# ==============================================================
+EOT
+exit 1
+fi
+
+# 
+# prepare  ----------------------------------------------------------
+# 
+
+# 環境ファイルからbasenameとdirnameを取得
+basename=`basename $1 .environment`
+dirname=`dirname $1`
+
+# コマンドライン引数の処理
+sim_num=$2
+iteration=$3
+
+# 環境ファイル，policyファイル，pomdpファイルの準備
+environment=${dirname}/${basename}.environment
+policy=${dirname}/${basename}.policy
+pomdp=${dirname}/${basename}.pomdp
+
+
+# 
+# make POMDP --------------------------------------------------------
+# 
+
+# 実行
+run -m pomdp -e $environment
+
+# エラーチェック（終了ステータスが0なら正常終了）
+if [ $? -gt 0 ]; then
+    gmail "[ERROR]pomdp_failed(${environment})" $ADDRESS $PASSWD
+    exit 1
+fi
+
+
+# 
+# make Policy -------------------------------------------------------
+# 
+
+# 実行
+zmdp solve -s hsvi $pomdp -o $policy
+
+# エラーチェック
+if [ $? -gt 0 ]; then
+    gmail "[ERROR]zmdp_failed(${environment})" $ADDRESS $PASSWD
+    exit 1
+fi
+
+# 成功メール送信
+gmail "[SUCCESS]zmdp_finished(${environment})" $ADDRESS $PASSWD
+
+
+# 
+# make policy.json --------------------------------------------------
+# 
+
+# 実行
+jconvert $policy $pomdp
+
+# エラーチェック
+if [ $? -gt 0 ]; then
+    gmail "[ERROR]jconvert_failed(${environment})" $ADDRESS $PASSWD
+    exit 1
+fi
+
+
+# 
+# simulation --------------------------------------------------------
+# 
+
+# 実行
+simulate $environment $sim_num $iteration
+
+# エラーチェック
+if [ $? -gt 0 ]; then
+    gmail "[ERROR]simulation_failed(${environment})" $ADDRESS $PASSWD
+    exit 1
+fi
+
+# 成功メール送信
+gmail "[SUCCESS]simulation_finished(${environment})" $ADDRESS $PASSWD
