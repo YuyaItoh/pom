@@ -158,8 +158,8 @@ public class Simulator {
 
 		// 状態の更新
 		mPrevState = mCurrentState;
-		mCurrentState = new State(mCurrentState.getIndex(), mCurrentState.getQuality(),
-				mAgent.getRemainingBudget() - pWage, mCurrentState.getPrevStateQuality());
+		mCurrentState = new State(mCurrentState.getIndex(), mCurrentState.getQuality(), mAgent.getRemainingBudget(),
+				mCurrentState.getPrevStateQuality());
 
 		return evaluation;
 	}
