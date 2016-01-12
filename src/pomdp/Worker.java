@@ -37,7 +37,7 @@ public class Worker {
 	 */
 	public double solve(Subtask pSubTask, int pWage, double pPrevQuality) {
 		// TODO: 品質関数の決定．現在は適当のやつだから
-		double effort = mAbility * (pWage * 0.7);
+		double effort = mAbility * (pWage * 0.5);
 		double quality = Math.pow((1 - pSubTask.getDifficulty()), 1.0 / effort) * pPrevQuality;
 		return quality;
 	}
