@@ -207,6 +207,10 @@ public class PomdpAgent extends Agent {
 		// （s: 前の状態, s': 新しい状態）
 		//
 		// b'(s') = k * P(o|s',a) * Σ_s P(s'|s,a)b(s)
+		// -------------<---1--->--------<---2--->----
+		// 1: observeProb
+		// 2: reachProb
+		//
 		// k = 1 / ( Σ_s' P(o'|s',a) * Σ_s P(s'|s,a) b(s) )
 		//
 		// 言葉で表せば，「s'でoを観測する確率 × s'にいる確率」
@@ -219,16 +223,22 @@ public class PomdpAgent extends Agent {
 
 		// 信念b(i)を計算
 		for (int after = 0; after < mBelief.length; after++) {
-			double reachProb = 0.0; // 状態s'への到達確率，Σ_s P(s'|s,a)b(s)
+			// 1. oの観測可能性，P(o'|s',a)
 			double observeProb = mEnv.getOManager().getObservationProbability(mPrevAction, mStates[after],
-					pObservation); // oの観測可能性，P(o'|s',a)
+					pObservation);
+
+			// 2. 状態s'への到達確率，Σ_s P(s'|s,a)b(s)
+			double reachProb = 0.0;
 
 			// 観測確率が0の場合は積が0になるので到達確率の計算不要
 			if (observeProb != 0) {
 				// 到達確率Σ_s P(s'|s,a)b(s)の計算
 				for (int before = 0; before < mBelief.length; before++) {
-					reachProb += mEnv.getTManager().getProbability(mStates[before], mPrevAction, mStates[after])
-							* mBelief[before];
+					// b(s)が0ならcontinue
+					if (mBelief[before] != 0.0) {
+						reachProb += mEnv.getTManager().getProbability(mStates[before], mPrevAction, mStates[after])
+								* mBelief[before];
+					}
 				}
 			}
 			// 状態iの信念
