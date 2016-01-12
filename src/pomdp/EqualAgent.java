@@ -7,22 +7,49 @@ import pomdp.Action.ActionType;
  * 
  */
 public class EqualAgent extends Agent {
+	// ========================
+	// Fields
+	// ========================
 	private int mIterationNum; // 各サブタスクに対する繰り返し数
 	private int mCurrentIteration; // 現在の繰り返し回数
-	private int mWage; // 各ワーカに支払う賃金
 	private boolean mIsFirstAction;
+	private int[] mWages; // 各ワーカに支払う賃金
+	private int mWorkerIdx; // 実行ワーカ
 
+	// ========================
+	// Constructors
+	// ========================
 	public EqualAgent(Environment pEnv, AgentType pAgentType, int pIterationNum) {
 		super(pEnv, pAgentType);
 		mCurrentIteration = 0;
 		mIterationNum = pIterationNum;
+		mWorkerIdx = 0;
 		mIsFirstAction = true;
 
-		// ワーカへの賃金は予算を（繰り返し数 * サブタスク数）で割った値
-		// FIXME: 切り捨てになってるから予算残るけど．．．どうしよう？
-		mWage = (int) mBudget / (mTaskSet.getSubtaskNum() * mIterationNum);
+		initWages(); // ワーカへの賃金の初期化
 	}
 
+	private void initWages() {
+		int workersNum = mTaskSet.getSubtaskNum() * mIterationNum;
+		int remainingBudget = mBudget;
+		mWages = new int[workersNum];
+
+		// 各ワーカに均等に支払う
+		for (int i = 0; i < workersNum; i++) {
+			mWages[i] = (int) mBudget / workersNum;
+			remainingBudget -= mWages[i];
+		}
+
+		// 残り予算を順に割当てる
+		for (int i = 0; remainingBudget > 0; i++) {
+			mWages[i] += 1;
+			remainingBudget -= 1;
+		}
+	}
+
+	// ========================
+	// Methods
+	// ========================
 	@Override
 	public Action selectAction() {
 		Action action;
@@ -36,6 +63,8 @@ public class EqualAgent extends Agent {
 
 		// 予算の更新
 		mRemainingBudget -= action.getWage();
+		// ワーカidxの更新
+		mWorkerIdx++;
 
 		return action;
 	}
@@ -56,7 +85,7 @@ public class EqualAgent extends Agent {
 	private Action selectCurrAction() {
 		// 反復回数のインクリメント
 		mCurrentIteration++;
-		return new Action(ActionType.CURR, mWage);
+		return new Action(ActionType.CURR, mWages[mWorkerIdx]);
 	}
 
 	/**
@@ -74,7 +103,7 @@ public class EqualAgent extends Agent {
 		if (mCurrentTaskIndex > mTaskSet.getSubtaskNum()) {
 			action = new Action(ActionType.NEXT, -1);
 		} else {
-			action = new Action(ActionType.NEXT, mWage);
+			action = new Action(ActionType.NEXT, mWages[mWorkerIdx]);
 		}
 
 		return action;

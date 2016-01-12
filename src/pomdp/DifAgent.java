@@ -1,8 +1,5 @@
 package pomdp;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import pomdp.Action.ActionType;
 
 /**
@@ -14,9 +11,10 @@ public class DifAgent extends Agent {
 	// Fields
 	// =========================
 	private int mIterationNum; // 各サブタスクに対する繰り返し数
-	private Map<Integer, Integer> mWages; // 各サブタスクに支払う賃金
 	private int mCurrentIteration; // 現在の繰り返し数
 	private boolean mIsFirstAction;
+	private int[] mWages; // 各ワーカに支払う賃金
+	private int mWorkerIdx; // 実行ワーカ
 
 	// =========================
 	// Constructors
@@ -25,16 +23,18 @@ public class DifAgent extends Agent {
 		super(pEnv, pAgentType);
 		mIterationNum = pIterationNum;
 		mCurrentIteration = 0;
-		mWages = new LinkedHashMap<Integer, Integer>();
+		mWorkerIdx = 0;
 		mIsFirstAction = true;
-		calcWages();
+		initWages();
 	}
 
 	/**
 	 * 各サブタスクに支払う賃金を決定する
 	 */
-	private void calcWages() {
-		// FIXME: intによる予算の余りの調整
+	private void initWages() {
+		int workersNum = mTaskSet.getSubtaskNum() * mIterationNum;
+		int remainingBudget = mBudget;
+		mWages = new int[workersNum];
 
 		// 正規化用の難易度合計の計算
 		double difSum = 0.0;
@@ -42,11 +42,23 @@ public class DifAgent extends Agent {
 			difSum += mTaskSet.getSubtask(i).getDifficulty();
 		}
 
-		// 賃金の設定
+		// 難易度に応じて割り当てる
 		for (int i = 1; i <= mTaskSet.getSubtaskNum(); i++) {
 			double difficulty = mTaskSet.getSubtask(i).getDifficulty() / difSum;
 			int wage = (int) (mBudget * difficulty) / mIterationNum;
-			mWages.put(i, wage);
+
+			for (int j = 0; j < mIterationNum; j++) {
+				int idx = (i - 1) * mIterationNum + j;
+				mWages[idx] = wage;
+				remainingBudget -= mWages[idx];
+
+			}
+		}
+
+		// 残り予算を順に割り当てる
+		for (int i = 0; remainingBudget > 0; i++) {
+			mWages[i] += 1;
+			remainingBudget -= 1;
 		}
 	}
 
@@ -57,7 +69,6 @@ public class DifAgent extends Agent {
 	@Override
 	public Action selectAction() {
 		Action action;
-		// FIXME: シミュレーションを実行するとぬるぽが発生するので修正すること！！
 		// 現在の状況によって異なる行動を取る
 		if (mIsFirstAction || (mCurrentIteration >= mIterationNum)) {
 			action = selectNextAction();
@@ -67,6 +78,8 @@ public class DifAgent extends Agent {
 		}
 		// 予算の更新
 		mRemainingBudget -= action.getWage();
+		// ワーカidxの更新
+		mWorkerIdx++;
 
 		return action;
 	}
@@ -86,7 +99,7 @@ public class DifAgent extends Agent {
 	private Action selectCurrAction() {
 		// 反復回数のインクリメント
 		mCurrentIteration++;
-		return new Action(ActionType.CURR, mWages.get(mCurrentTaskIndex));
+		return new Action(ActionType.CURR, mWages[mWorkerIdx]);
 	}
 
 	/**
@@ -101,10 +114,10 @@ public class DifAgent extends Agent {
 
 		// 全サブタスクが終了した場合は-1の報酬額を払うことで終了合図
 		Action action;
-		if (mWages.containsKey(mCurrentTaskIndex)) {
-			action = new Action(ActionType.NEXT, mWages.get(mCurrentTaskIndex));
-		} else {
+		if (mCurrentTaskIndex > mTaskSet.getSubtaskNum()) {
 			action = new Action(ActionType.NEXT, -1);
+		} else {
+			action = new Action(ActionType.NEXT, mWages[mWorkerIdx]);
 		}
 
 		return action;
