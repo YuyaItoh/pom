@@ -21,7 +21,7 @@ public class Transition {
 	private double mReward; // 報酬は小数点1位まで
 
 	private final double PENALTY = -100.0; // FIXME: 予算切れによるペナルティの妥当性
-	private final double THRESHOLD = 0.4; // FIXME: 最低保証品質の妥当性
+	private final double THRESHOLD = 0.3; // FIXME: 最低保証品質の妥当性
 	private final int REMAINING_MAX_BUDGET = 5; // 予算が5以上だとゴールしても報酬を得られない
 
 	// =====================
