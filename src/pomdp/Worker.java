@@ -13,6 +13,7 @@ public class Worker {
 	// Fields
 	// ====================
 	private double mAbility;
+	private final double EFFORT_WEIGHT = 0.5; // 努力値の重み
 
 	// ====================
 	// Constructors
@@ -37,7 +38,7 @@ public class Worker {
 	 */
 	public double solve(Subtask pSubTask, int pWage, double pPrevQuality) {
 		// TODO: 品質関数の決定．現在は適当のやつだから
-		double effort = mAbility * (pWage * 0.5);
+		double effort = mAbility * pWage * EFFORT_WEIGHT;
 		double quality = Math.pow((1 - pSubTask.getDifficulty()), 1.0 / effort) * pPrevQuality;
 		return quality;
 	}
