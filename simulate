@@ -78,7 +78,7 @@ do
     a=`expr $a + 1`
 
     # Queue.confの作成と実行
-    queue=${dirname}/queue${a}.conf
+    queue=${dirname}/${basename}_queue${a}.conf
     run -m queue -e ${environment} -q ${queue}
 
     # Equalシミュレーション
