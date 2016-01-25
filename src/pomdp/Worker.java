@@ -13,7 +13,7 @@ public class Worker {
 	// Fields
 	// ====================
 	private double mAbility;
-	private final double EFFORT_WEIGHT = 0.3; // 努力値の重み
+	private final double EFFORT_WEIGHT = 1.5; // 努力値の重み
 
 	// ====================
 	// Constructors
